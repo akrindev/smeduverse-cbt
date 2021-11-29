@@ -31,7 +31,7 @@ export default function Index() {
                     <label className="text-lg font-bold">Kode Ujian</label>
                     <div className="flex">
                         <input type="text"
-                            className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow-lg focus:bg-blue-50 w-full"
+                            className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow focus:bg-blue-50 w-full"
                             placeholder="Kode Ujian"
                         />
                         <button className="ml-3 bg-lightBlue-700 text-white font-bold rounded px-5 hover:bg-lightBlue-900">Periksa</button>
