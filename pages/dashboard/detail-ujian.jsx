@@ -1,4 +1,5 @@
 import Authenticated from "../../components/Layouts/Authenticated"
+import { useRouter } from "next/router"
 
 function Header() {
     return (
@@ -11,6 +12,9 @@ function Header() {
 }
 
 export default function DetailUjian() {
+
+    const router = useRouter()
+
     return (
         <>
             <Authenticated header={<Header />}>
@@ -82,7 +86,7 @@ export default function DetailUjian() {
                         </div>
                         {/* button kerjakan */}
                         <div className="flex flex-col mt-8">
-                            <button className="w-full py-3 rounded-md bg-green-600 text-white hover:bg-green-700 font-poppins font-semibold">
+                            <button className="w-full py-3 rounded-md bg-green-600 text-white hover:bg-green-700 font-poppins font-semibold" onClick={() => router.push('/exam')}>
                                 Mulai Kerjakan
                             </button>
                         </div>

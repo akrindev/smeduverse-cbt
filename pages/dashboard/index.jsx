@@ -1,6 +1,7 @@
 import Authenticated from "../../components/Layouts/Authenticated"
 import BaseProfile from "../../components/BaseProfile"
 import LatestExam from "../../components/LatestExam"
+import { useRouter } from "next/router"
 
 function Header() {
     return (
@@ -21,6 +22,8 @@ export default function Index() {
         umur: 22
     }
 
+    const router = useRouter()
+
     return (
         <Authenticated header={<Header/>}>
             <BaseProfile data={data}/>
@@ -34,11 +37,15 @@ export default function Index() {
                             className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow focus:bg-blue-50 w-full"
                             placeholder="Kode Ujian"
                         />
-                        <button className="ml-3 bg-lightBlue-700 text-white font-bold rounded px-5 hover:bg-lightBlue-900">Periksa</button>
+                        <button
+                          className="ml-3 bg-lightBlue-700 text-white font-bold rounded px-5 hover:bg-lightBlue-900"
+                          onClick={() => router.push('/dashboard/detail-ujian')}
+                        >
+                            Periksa
+                        </button>
                     </div>
                 </div>
             </div>
-
 
             <div className="text-xl font-bold">Ujian terakhir</div>
 

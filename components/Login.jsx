@@ -37,7 +37,7 @@ export default function Login() {
                                 </label>
                                 <input
                                     type="text"
-                                    className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow-lg focus:bg-blue-50 w-full"
+                                    className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow focus:bg-blue-50 w-full"
                                     placeholder="NIS / NISN"
                                     autoFocus
                                     autoComplete="username"
@@ -53,7 +53,7 @@ export default function Login() {
                                 </label>
                                 <input
                                     type="password"
-                                    className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow-lg focus:bg-blue-50 w-full"
+                                    className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow focus:bg-blue-50 w-full"
                                     placeholder="Password"
                                     autoComplete="current-password"
                                 />
