@@ -32,8 +32,15 @@ export default function ExamIndex() {
                                 <div className="p-5 border-b border-gray-200 font-nunito font-semibold text-xl">
                                     Soal ke 32
                                 </div>
-                                {/* pertanyaan */}
+                                {/* pertanyaan */}  
                                 <div className="p-5 font-nunito font-normal text-base" dangerouslySetInnerHTML={dangerHTML()} />
+
+                                <div className="border-b border-gray-200"></div>
+
+                                <div className="p-5">
+                                    This is the answer option
+                                </div>
+
                             </div>
 
                         </div>
@@ -42,10 +49,13 @@ export default function ExamIndex() {
                             <div className="p-5 bg-white rounded shadow">
                                 <div className="font-bold text-base mb-5">Navigasi soal</div>
                                 <div className="grid grid-cols-12 gap-3 w-full mx-auto">
-                                    {[1,2,3,4,5,6,7,8,9,10, 11,12,13,14,15,16,17,18,19,20, 21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40].map(i => (<div className="col-span-2 cursor-pointer bg-gray-100 py-2 text-center rounded-md hover:transform hover:scale-105 focus:scale-95 text-gray-600 border border-gray-600 font-bold" key={i}>{i}</div>) )}
+                                    {[1,2,3,4,5,6].map(i => (<div className="col-span-2 cursor-pointer bg-gray-100 py-2 text-center rounded-md hover:transform hover:scale-105 focus:scale-95 text-gray-600 border border-gray-600 font-bold" key={i}>{i}</div>) )}
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div className="flex items-center justify-center text-center mt-14 text-warmGray-500">
+                        <strong>Smeducative</strong> <span className="ml-1 text-sm font-light"> is part of SMK Diponegoro Karanganyar</span>
                     </div>
                 </div>
             </ExamBegin>
