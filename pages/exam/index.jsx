@@ -63,8 +63,24 @@ export default function ExamIndex() {
                             
                             <div className="p-5 bg-white rounded shadow">
                                 <div className="font-bold text-base mb-5">Navigasi Soal</div>
-                                <div className="grid grid-cols-12 gap-3 w-full mx-auto">
-                                    {[1,2,3,4,5,6].map(i => (<NavButirSoal key={i} number={i}/>) )}
+                                <div className="grid grid-cols-10 gap-2 w-full mx-auto">
+                                    {[1,2,3,4,5,6,7,8,9,10].map(i => (<NavButirSoal key={i} number={i}/>) )}
+                                </div>
+                                <div className="mt-5 flex justify-end">
+                                    <button className="bg-gray-200 text-sm px-4 py-1 rounded-lg border border-gray-500 font-medium">Hentikan Ujian</button>
+                                </div>
+                                <div className="mt-3">
+                                    <div className="flex flex-col items-start">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="h-2 w-2 bg-green-500 rounded"></div> <span className="text-xs text-gray-600">soal telah dijawab</span> 
+                                        </div>
+                                        <div className="flex items-center space-x-3 mt-1">
+                                            <div className="h-2 w-2 bg-yellow-500 rounded"></div> <span className="text-xs text-gray-600">ragu-ragu</span> 
+                                        </div>
+                                        <div className="flex items-center space-x-3 mt-1">
+                                            <div className="h-2 w-2 bg-gray-700 rounded"></div> <span className="text-xs text-gray-600">belum dijawab</span> 
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -81,12 +97,12 @@ export default function ExamIndex() {
 function NavButirSoal({ number }) {
     return (
         <>
-            <div className="col-span-2 relative">
-                <div className="border border-blue-600 font-bold cursor-pointer bg-gray-200 py-2 text-center rounded-md hover:transform hover:scale-105 focus:scale-95 text-gray-600">{number}</div>
+            <div className="col-span-1 relative">
+                <div className="border border-gray-600 font-bold cursor-pointer bg-gray-200 py-2 text-center rounded-md hover:transform hover:scale-105 focus:scale-95 text-gray-600">{number}</div>
 
-                <div className="absolute -top-3 -right-1 flex items-center justify-center">
-                    <div className="bg-coolGray-700 text-white rounded-full border border-blue-400">
-                        <span className="px-2">a</span>
+                <div className="absolute -top-3 -right-1">
+                    <div className=" text-white z-20">
+                        <span className="bg-coolGray-700 rounded-full border border-gray-800 px-1">a</span>
                     </div>
                 </div>
             </div>
