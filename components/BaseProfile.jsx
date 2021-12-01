@@ -1,7 +1,7 @@
 export default function BaseProfile({ data }) {
     return (
         <>
-            <div className="relative bg-white rounded-lg shadow-2xl p-5">
+            <div className="relative bg-white rounded-lg shadow-md p-5">
                 <div className="flex items-center justify-center flex-wrap space-x-4">
                     <div className="flex flex-col text-center px-5">
                         <div className="font-nunito font-bold text-lg">NIS</div>

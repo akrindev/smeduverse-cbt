@@ -1,4 +1,5 @@
 import ExamBegin from "../../components/Layouts/ExamBegin"
+import QuestionOption from "../../components/QuestionOption"
 
 function NavHead() {
     return (
@@ -29,16 +30,30 @@ export default function ExamIndex() {
                         <div className="col-span-12 lg:col-span-8">
                             <div className="bg-white rounded shadow">
                                 {/* header info */}
-                                <div className="p-5 border-b border-gray-200 font-nunito font-semibold text-xl">
-                                    Soal ke 32
+                                <div className="px-5 py-3 border-b border-gray-200 font-nunito font-semibold text-xl">
+                                    Soal ke 1
                                 </div>
                                 {/* pertanyaan */}  
-                                <div className="p-5 font-nunito font-normal text-base" dangerouslySetInnerHTML={dangerHTML()} />
+                                <div className="px-4 py-3 font-nunito font-normal text-base" dangerouslySetInnerHTML={dangerHTML()} />
 
-                                <div className="border-b border-gray-200"></div>
+                                <div className="border-b border-gray-100"></div>
 
-                                <div className="p-5">
-                                    This is the answer option
+                                <div className="p-3">
+                                    <QuestionOption />
+                                </div>
+
+                                <div className="p-3 pb-5">
+                                    <div className="flex items-center justify-between">
+                                        <button className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md">
+                                            Soal Sebelumnya
+                                        </button>
+                                        <button className="px-3 py-2 bg-yellow-500 border border-yellow-600 text-gray-100 text-sm rounded-md">
+                                            Ragu-ragu
+                                        </button>
+                                        <button className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md">
+                                            Soal Berikutnya
+                                        </button>
+                                    </div>
                                 </div>
 
                             </div>
@@ -47,9 +62,9 @@ export default function ExamIndex() {
                         <div className="col-span-12 lg:col-span-4">
                             
                             <div className="p-5 bg-white rounded shadow">
-                                <div className="font-bold text-base mb-5">Navigasi soal</div>
+                                <div className="font-bold text-base mb-5">Navigasi Soal</div>
                                 <div className="grid grid-cols-12 gap-3 w-full mx-auto">
-                                    {[1,2,3,4,5,6].map(i => (<div className="col-span-2 cursor-pointer bg-gray-100 py-2 text-center rounded-md hover:transform hover:scale-105 focus:scale-95 text-gray-600 border border-gray-600 font-bold" key={i}>{i}</div>) )}
+                                    {[1,2,3,4,5,6].map(i => (<NavButirSoal key={i} number={i}/>) )}
                                 </div>
                             </div>
                         </div>
@@ -59,6 +74,22 @@ export default function ExamIndex() {
                     </div>
                 </div>
             </ExamBegin>
+        </>
+    )
+}
+
+function NavButirSoal({ number }) {
+    return (
+        <>
+            <div className="col-span-2 relative">
+                <div className="border border-blue-600 font-bold cursor-pointer bg-gray-200 py-2 text-center rounded-md hover:transform hover:scale-105 focus:scale-95 text-gray-600">{number}</div>
+
+                <div className="absolute -top-3 -right-1 flex items-center justify-center">
+                    <div className="bg-coolGray-700 text-white rounded-full border border-blue-400">
+                        <span className="px-2">a</span>
+                    </div>
+                </div>
+            </div>
         </>
     )
 }
