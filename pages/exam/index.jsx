@@ -1,5 +1,6 @@
 import ExamBegin from "../../components/Layouts/ExamBegin"
 import QuestionOption from "../../components/QuestionOption"
+import { useRouter } from "next/router"
 
 function NavHead() {
     return (
@@ -15,6 +16,7 @@ function NavHead() {
 }
 
 export default function ExamIndex() {
+    const router = useRouter()
 
     const dangerHTML = () => {
         return {
@@ -67,7 +69,12 @@ export default function ExamIndex() {
                                     {[1,2,3,4,5,6,7,8,9,10].map(i => (<NavButirSoal key={i} number={i}/>) )}
                                 </div>
                                 <div className="mt-5 flex justify-end">
-                                    <button className="bg-gray-200 text-sm px-4 py-1 rounded-lg border border-gray-500 font-medium">Hentikan Ujian</button>
+                                    <button
+                                        className="bg-gray-200 text-sm px-4 py-1 rounded-lg border border-gray-500 font-medium"
+                                        onClick={() => router.push("/exam/selesai")}
+                                        >
+                                            Hentikan Ujian
+                                    </button>
                                 </div>
                                 <div className="mt-3">
                                     <div className="flex flex-col items-start">
