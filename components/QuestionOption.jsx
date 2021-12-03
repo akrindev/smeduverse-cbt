@@ -1,22 +1,8 @@
 import { useState } from 'react'
 import { RadioGroup } from '@headlessui/react'
 
-const options = [
-  {
-    name: 'Startup',
-  },
-  {
-    name: 'Business',
-  },
-  {
-    name: 'Enterprise',
-  },
-  {
-    name: 'Enterprise <b>Special</b> lorem ipsum doro sit amet consectetur adipisicing elit. Quisquam, quidem.',
-  },
-]
 
-export default function QuestionOption() {
+export default function QuestionOption({ data: options }) {
   const [selected, setSelected] = useState('')
 
   return (
@@ -27,8 +13,8 @@ export default function QuestionOption() {
           <div className="space-y-2">
             {options.map((option) => (
               <RadioGroup.Option
-                key={option.name}
-                value={option}
+                key={option.title}
+                value={option.body}
                 className={({ active, checked }) =>
                   `${
                     active

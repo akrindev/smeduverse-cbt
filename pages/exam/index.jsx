@@ -24,6 +24,7 @@ export default function ExamIndex() {
     const [question, setQuestion] = useState({})
     const [questions, setQuestions] = useState({})
     const [questionIndex, setQuestionIndex] = useState(0)
+    const [options, setOptions] = useState([])
 
     // prevent leave window
     useEffect(() => {
@@ -47,7 +48,16 @@ export default function ExamIndex() {
     }, [])
 
     useEffect(() => {
+
+        const getOptions = () => {
+            api.get(`/posts/${questionIndex}/comments`).then(res => {
+                setOptions(res.data)
+            }).catch(err => console.error(err))
+        }
+
         setQuestion(questions[questionIndex])
+
+        getOptions()
     }, [questionIndex])
 
     const router = useRouter()
@@ -75,18 +85,18 @@ export default function ExamIndex() {
                                 <div className="border-b border-gray-100"></div>
 
                                 <div className="p-3">
-                                    <QuestionOption />
+                                    <QuestionOption data={options} />
                                 </div>
 
                                 <div className="p-3 pb-5">
                                     <div className="flex items-center justify-between">
-                                        <button className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md">
+                                        <button onClick={() => setQuestionIndex(prev => prev - 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md">
                                             Soal Sebelumnya
                                         </button>
                                         <button className="px-3 py-2 bg-yellow-500 border border-yellow-600 text-gray-100 text-sm rounded-md">
                                             Ragu-ragu
                                         </button>
-                                        <button className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md">
+                                        <button onClick={() => setQuestionIndex(prev => prev + 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md">
                                             Soal Berikutnya
                                         </button>
                                     </div>

@@ -1,4 +1,6 @@
 import { useRouter } from 'next/router';
+import Image from 'next/image'
+import Head from 'next/head'
 
 export default function Login() {
     const router = useRouter();
@@ -10,16 +12,27 @@ export default function Login() {
 
     return (
         <>
+            <Head>
+                <title>CBT Login</title>
+            </Head>
             <div className="container mx-auto px-4 h-full">
                 <div className="flex content-center items-center justify-center h-full">
                 <div className="w-full lg:w-4/12 px-4">
-                    <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-white border-0">
+                    <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-md bg-white border-0">
                         <div className="rounded-t mb-0 px-6 py-6">
                             <div className="text-center mb-3">
-                                <h6 className="text-blue-500 text-2xl font-poppins font-bold">
+                                <div className="flex items-center justify-center">
+                                    <Image 
+                                        src={`/assets/images/tutwurihandayani.png`}
+                                        alt="Tutwuri Handayani"
+                                        width={65}
+                                        height={65}
+                                    />
+                                </div>
+                                <h6 className="text-blue-700 text-2xl font-poppins font-bold">
                                     Computer Based Test
                                 </h6>
-                                <span className="text-xs text-lightBlue-500 font-nunito">🎉 Sebelum masuk, identifikasi diri kamu dulu yuk</span>
+                                <span className="text-sm text-lightBlue-600 font-nunito">🎉 Sebelum masuk, identifikasi diri kamu dulu yuk</span>
                             </div>
                             
                             <hr className="mt-6 border-b-1 border-blueGray-300" />
@@ -72,7 +85,7 @@ export default function Login() {
                     </div>
                     
                     <div className="flex flex-wrap mt-6 relative">
-                        <div className="w-full">
+                        <div className="w-full text-center">
                             <strong className="text-white font-bol">Smeducative</strong> <span className="text-sm text-white font-thin">is part of SMK Diponegoro Karanganyar</span>
                         </div>
                     </div>
