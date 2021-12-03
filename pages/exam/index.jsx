@@ -1,6 +1,10 @@
+import { useEffect, useState } from "react"
+import { useRouter } from "next/router"
+import { ToastContainer, toast } from 'react-toastify';
+import { api } from "../../lib/services/axios";
+
 import ExamBegin from "../../components/Layouts/ExamBegin"
 import QuestionOption from "../../components/QuestionOption"
-import { useRouter } from "next/router"
 
 function NavHead() {
     return (
@@ -9,24 +13,54 @@ function NavHead() {
                 <div className="text-lg font-bold text-white">
                     Computer Based Test
                 </div>
-                <div className="rounded-xl text-sm shadow-2xl px-4 py-1 bg-white">30:44 menit</div>
+                <div className="rounded-xl text-xs shadow-2xl px-4 py-1 bg-white">sisa waktu: 34 menit</div>
             </div>
         </>
     )
 }
 
 export default function ExamIndex() {
+    const [warn, setWarn] = useState(0)
+    const [question, setQuestion] = useState({})
+    const [questions, setQuestions] = useState({})
+    const [questionIndex, setQuestionIndex] = useState(0)
+
+    // prevent leave window
+    useEffect(() => {
+        // on blur
+        window.onblur = () => {
+            // alert("Peringatan meninggalkan halaman ujian")
+            setWarn(prev => prev + 1)
+        }
+    }, [warn])
+
+    useEffect(() => {
+        
+        const getQuestion = () => {
+            api.get("/posts").then(res => {
+                setQuestions(res.data)
+                setQuestion(res.data[0])
+            }).catch(err => console.error(err))
+        }
+
+        getQuestion()
+    }, [])
+
+    useEffect(() => {
+        setQuestion(questions[questionIndex])
+    }, [questionIndex])
+
     const router = useRouter()
 
     const dangerHTML = () => {
         return {
-            __html: 'lorem ipsum dolor sit amet <b>aku akan di tebali dengan ke imanan </b> dan ketangguhan jiwa <i>hehe</i> dan aku  akan bisa ke mana sih anjir aku aja ngga tau mau kemana tapi aku tidak akan tau kemana sih yang akan kamu lakukan jika itu yang terjadi. aku hanya ingin mencoba untuk tidak menggunakan ini lagi tapi aku ngga tau apa yang akan kamu lakukan jika itu yang terbaik unttuk aku terima, aku berterimakasih kepadamu arena aku yang disini bisa jadi seperti apa yang aku minta, kamu tau aku ngga tau apa apa <img src="http://placekitten.com/200/200" alt=""/> nah disini ada kucing yang akan menemani mu sampai aku tidak tau lagi mau ngomong apa soalnya ini cuma tulisan saja'
+            __html: question?.body ?? ""
         }
     }
 
     return (
         <>
-            <ExamBegin header={<NavHead/>}>
+            <ExamBegin header={<NavHead warn={warn} />}>
                 <div className="relative my-3 w-full max-w-7xl mx-auto">
                     <div className="grid grid-cols-12 gap-6 w-full mx-auto">
                         <div className="col-span-12 lg:col-span-8">
@@ -63,10 +97,10 @@ export default function ExamIndex() {
                         </div>
                         <div className="col-span-12 lg:col-span-4">
                             
-                            <div className="p-5 bg-white rounded shadow">
+                            <div className="p-4 bg-white rounded shadow">
                                 <div className="font-bold text-base mb-5">Navigasi Soal</div>
                                 <div className="grid grid-cols-10 gap-2 w-full mx-auto">
-                                    {[1,2,3,4,5,6,7,8,9,10].map(i => (<NavButirSoal key={i} number={i}/>) )}
+                                    {[1,2,3,4,5,6,7,8,9,10].map(i => (<NavButirSoal onClick={() => setQuestionIndex(i)} key={i} number={i}/>) )}
                                 </div>
                                 <div className="mt-5 flex justify-end">
                                     <button
@@ -87,6 +121,9 @@ export default function ExamIndex() {
                                         <div className="flex items-center space-x-3 mt-1">
                                             <div className="h-2 w-2 bg-gray-700 rounded"></div> <span className="text-xs text-gray-600">belum dijawab</span> 
                                         </div>
+                                        <div className="flex items-center mt-5 text-xs font-medium">
+                                            <div className="text-red-600 mr-1">Peringatan</div> <span className="text-xs text-red-900 font-bold"> {warn} </span> 
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -96,20 +133,21 @@ export default function ExamIndex() {
                         <strong>Smeducative</strong> <span className="ml-1 text-sm font-light"> is part of SMK Diponegoro Karanganyar</span>
                     </div>
                 </div>
+                <ToastContainer />
             </ExamBegin>
         </>
     )
 }
 
-function NavButirSoal({ number }) {
+function NavButirSoal({ number, onClick }) {
     return (
         <>
-            <div className="col-span-1 relative">
-                <div className="border border-gray-600 font-bold cursor-pointer bg-gray-200 py-2 text-center rounded-md hover:transform hover:scale-105 focus:scale-95 text-gray-600">{number}</div>
+            <div className="col-span-1 relative" onClick={onClick}>
+                <div className="border border-gray-600 font-bold cursor-pointer bg-gray-200 py-1 text-center rounded hover:transform hover:scale-105 focus:scale-95 text-gray-600">{number}</div>
 
                 <div className="absolute -top-3 -right-1">
-                    <div className=" text-white z-20">
-                        <span className="bg-coolGray-700 rounded-full border border-gray-800 px-1">a</span>
+                    <div className="text-white z-20 flex items-center justify-center text-xs">
+                        <span className="bg-coolGray-700 rounded-full border border-gray-800 px-1.5"> -</span>
                     </div>
                 </div>
             </div>
