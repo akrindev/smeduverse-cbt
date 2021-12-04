@@ -56,7 +56,7 @@ export default function ExamSchedule() {
                 <td className="p-2">
                   <div className="text-center">
                       <button className="bg-green-500 rounded-md px-3 py-1 text-white shadow"
-                        onClick={() => router.push('/exam')}
+                        onClick={() => router.push('/dashboard/detail-ujian')}
                       >
                           kerjakan
                         </button>

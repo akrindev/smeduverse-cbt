@@ -84,7 +84,14 @@ export default function ExamIndex() {
                 <title>Ujian</title>
             </Head>
             <ExamBegin header={<NavHead warn={warn} />}>
-            <Modal isDialogOpen={isOpenDialog} onCloseModal={() => setIsOpenDialog(false)} title="Akhiri Ujian ini?" description="Pastikan Kamu sudah mengoreksi soal" />
+            <Modal
+                isDialogOpen={isOpenDialog}
+                onCloseModal={() => setIsOpenDialog(false)}
+                title="Akhiri Ujian ini?"
+                description="Pastikan Kamu sudah mengoreksi soal"
+                action={<button className="px-4 py-1 rounded shadow bg-sky-500 border border-sky-600 font-medium text-white" onClick={() => router.push(`/exam/selesai`)}>Simpan</button>}
+            />
+
                 <div className="relative my-3 w-full max-w-7xl mx-auto">
                     <div className="grid grid-cols-12 gap-6 w-full mx-auto">
                         <div className="col-span-12 lg:col-span-8">
