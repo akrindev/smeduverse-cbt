@@ -1,7 +1,7 @@
 function Header({ body }) {
     return (
         <>              
-            <div className="relative bg-gradient-to-r from-lightBlue-500 via-lightBlue-400 to-lightBlue-400 pb-32 pt-10">
+            <div className="relative bg-gradient-to-r from-sky-500 via-sky-400 to-sky-400 pb-32 pt-10">
                 <div className="w-full px-4 md:px-10 mx-auto">
                         {body}
                 </div>

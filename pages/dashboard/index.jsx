@@ -1,56 +1,48 @@
-import Authenticated from "../../components/Layouts/Authenticated"
-import BaseProfile from "../../components/BaseProfile"
-import LatestExam from "../../components/LatestExam"
-import { useRouter } from "next/router"
+import { useState } from "react";
+import Head from 'next/head'
 
-function Header() {
-    return (
-        <div className="flex flex-col text-white">
-            <div className="font-poppins text-xl font-bold">
-                Hello, Syakirin Amin
-            </div>
-            <div className="font-nunito text-lg font-normal">XI RPL</div>
-        </div>
-    )
-}
+import Sidebar from "../../components/Sidebar";
+import Header from "../../components/Header";
 
-export default function Index() {
-    const data = {
-        nis: 220899,
-        nisn: 882288999,
-        ttl: 'Pekalongan, 22 Agustus 1999',
-        umur: 22
-    }
+import WelcomeBanner from "../../components/WelcomeBanner";
+import ExamSchedule from "../../components/Dashboard/ExamSchedule";
 
-    const router = useRouter()
+export default function Dashboard() {
 
-    return (
-        <Authenticated header={<Header/>}>
-            <BaseProfile data={data}/>
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-            <div className="my-8">
-                {/* kode ujian */}
-                <div className="block p-5 bg-white shadow-md rounded-md mb-5">
-                    <label className="text-lg font-bold">Kode Ujian</label>
-                    <div className="flex">
-                        <input type="text"
-                            className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow focus:bg-blue-50 w-full"
-                            placeholder="Kode Ujian"
-                        />
-                        <button
-                          className="ml-3 bg-lightBlue-700 text-white font-bold rounded px-5 hover:bg-lightBlue-900"
-                          onClick={() => router.push('/dashboard/detail-ujian')}
-                        >
-                            Periksa
-                        </button>
+  return (
+    <>
+        <div className="flex h-screen overflow-hidden">
+
+        {/* Sidebar */}
+            <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+            {/* Content area */}
+            <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+
+                {/*  Site header */}
+                <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+                <main className="bg-blueGray-100 min-h-screen">
+                    <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+                        {/* Welcome banner */}
+                        <WelcomeBanner />
+
+                        {/* Cards */}
+                        <div className="grid grid-cols-12 gap-6">
+
+                        {/* Exam schedule */}
+                        <ExamSchedule />
+                        
+                        </div>
+
                     </div>
-                </div>
+                </main>
+
             </div>
-
-            <div className="text-xl font-bold">Ujian terakhir</div>
-
-            <LatestExam />
-        </Authenticated>
-    )
+        </div>
+    </>
+  );
 }
-

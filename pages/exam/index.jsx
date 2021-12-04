@@ -32,6 +32,7 @@ export default function ExamIndex() {
         window.onblur = () => {
             // alert("Peringatan meninggalkan halaman ujian")
             setWarn(prev => prev + 1)
+            toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
         }
     }, [warn])
 
