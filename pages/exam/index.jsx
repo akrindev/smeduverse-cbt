@@ -2,9 +2,11 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { ToastContainer, toast } from 'react-toastify';
 import { api } from "../../lib/services/axios";
+import Head from 'next/head'
 
 import ExamBegin from "../../components/Layouts/ExamBegin"
 import QuestionOption from "../../components/QuestionOption"
+import Modal from "../../components/Dialog";
 
 function NavHead() {
     return (
@@ -25,6 +27,13 @@ export default function ExamIndex() {
     const [questions, setQuestions] = useState({})
     const [questionIndex, setQuestionIndex] = useState(0)
     const [options, setOptions] = useState([])
+    // dialog state
+    const [isOpenDialog, setIsOpenDialog] = useState(false)
+
+    const stopExam = () => {
+        setIsOpenDialog(true)
+        console.log('clicked')
+    }
 
     // prevent leave window
     useEffect(() => {
@@ -71,7 +80,11 @@ export default function ExamIndex() {
 
     return (
         <>
+            <Head>
+                <title>Ujian</title>
+            </Head>
             <ExamBegin header={<NavHead warn={warn} />}>
+            <Modal isDialogOpen={isOpenDialog} onCloseModal={() => setIsOpenDialog(false)} title="Akhiri Ujian ini?" description="Pastikan Kamu sudah mengoreksi soal" />
                 <div className="relative my-3 w-full max-w-7xl mx-auto">
                     <div className="grid grid-cols-12 gap-6 w-full mx-auto">
                         <div className="col-span-12 lg:col-span-8">
@@ -116,7 +129,7 @@ export default function ExamIndex() {
                                 <div className="mt-5 flex justify-end">
                                     <button
                                         className="bg-gray-200 text-sm px-4 py-1 rounded-lg border border-gray-500 font-medium"
-                                        onClick={() => router.push("/exam/selesai")}
+                                        onClick={stopExam}
                                         >
                                             Hentikan Ujian
                                     </button>
