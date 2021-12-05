@@ -1,13 +1,30 @@
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image'
 import Head from 'next/head'
+import { useAuth } from '../lib/hooks/auth';
+
 
 export default function Login() {
     const router = useRouter();
 
-    const login = (e) => {
-        e.preventDefault()
-        router.push('/dashboard')
+    const { login } = useAuth({
+        middleware: 'guest',
+        redirectIfAuthenticated: '/dashboard',
+    });
+
+    console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
+
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [errors, setErrors] = useState([])
+    const [status, setStatus] = useState(null)
+
+    const submitForm = async event => {
+        event.preventDefault()
+
+        login({ email, password, setErrors, setStatus })
+        console.log(email, password)
     }
 
     return (
@@ -39,7 +56,7 @@ export default function Login() {
                         </div>
                         <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
                             <form
-                                onSubmit={login}
+                                onSubmit={submitForm}
                             >
                             <div className="relative w-full mb-3">
                                 <label
@@ -54,6 +71,9 @@ export default function Login() {
                                     placeholder="NIS / NISN"
                                     autoFocus
                                     autoComplete="username"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    required
                                 />
                             </div>
 
@@ -69,6 +89,9 @@ export default function Login() {
                                     className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow focus:bg-blue-50 w-full"
                                     placeholder="Password"
                                     autoComplete="current-password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    required
                                 />
                             </div>
 
