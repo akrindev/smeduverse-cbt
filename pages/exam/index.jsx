@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { ToastContainer, toast } from 'react-toastify';
-import { api } from "../../lib/services/axios";
+import axios from "../../lib/services/axios";
 import Head from 'next/head'
 
 import ExamBegin from "../../components/Layouts/ExamBegin"

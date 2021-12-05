@@ -1,19 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image'
 import Head from 'next/head'
 import { useAuth } from '../lib/hooks/auth';
 
-
 export default function Login() {
     const router = useRouter();
 
-    const { login } = useAuth({
+    const { login, user } = useAuth({
         middleware: 'guest',
         redirectIfAuthenticated: '/dashboard',
     });
 
-    console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
+    if (user) {
+        router.push('/dashboard');
+    }
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')

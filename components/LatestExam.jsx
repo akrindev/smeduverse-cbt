@@ -19,7 +19,7 @@ export default function LatestExam() {
     return (
         <>
             {data && data.map((item) => {
-                return (<div className="bg-white shadow-lg rounded-md mt-5 px-3 py-2 hover:bg-lightBlue-700 hover:text-white duration-200">
+                return (<div key={data.tanggal} className="bg-white shadow-lg rounded-md mt-5 px-3 py-2 hover:bg-lightBlue-700 hover:text-white duration-200">
                     <div className="flex" onClick={() => router.push(`/exam`)}>
                         <div className="flex flex-col">
                             <div className="font-nunito text-md font-bold">{item.mapel}</div>
