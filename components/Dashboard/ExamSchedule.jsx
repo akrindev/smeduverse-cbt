@@ -1,13 +1,61 @@
-import { useRouter } from 'next/router'
+import router, { useRouter } from 'next/router'
+import { useEffect, useState } from 'react';
+import { api } from '../../lib/hooks/auth'
+
+import Modal from '../Dialog'
 
 export default function ExamSchedule() {
-  const router = useRouter();
+  const [schedules, setSchedules] = useState([]);
+
+  useEffect(() => {
+    const getExamSchedule = async () => {
+      const { data } = await api.get('/api/exam/schedule-list');
+
+      setSchedules(data.ujian_schedule);
+    }
+
+    getExamSchedule();
+  }, [])
+  
 
   return (
     <div className="col-span-12 bg-white shadow-lg rounded-sm border border-gray-200">
       <header className="px-5 py-4 border-b border-gray-100">
         <h2 className="font-semibold text-gray-800">Jadwal Ujian</h2>
       </header>
+
+      {schedules && schedules.length > 0 ? (
+        <ScheduleTable schedules={schedules} />
+      ) : (
+        <div className="px-5 py-4">
+          <p className="text-gray-800">Belum ada jadwal ujian</p>
+        </div>
+      )}  
+    </div>
+  );
+}
+
+function ScheduleTable({ schedules }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const router = useRouter();
+
+  const toDate = (day) => {
+    const date = new Date(day).toLocaleString('id-ID', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+    });
+
+    console.log(date)
+
+    return date
+  }
+
+  return (
+    <>
       <div className="p-1">
 
         {/* Table */}
@@ -36,38 +84,58 @@ export default function ExamSchedule() {
             {/* Table body */}
             <tbody className="text-xs font-medium divide-y divide-gray-100">
               {/* Row */}
-              <tr>
+              
+        {schedules && schedules.map((schedule, index) => (
+              <tr key={schedule.id}>
                 <td className="p-2 whitespace-nowrap">
                   <div className="flex flex-col items-start">
-                    <div className="text-gray-800">Pendidikan Agama Islam</div>
-                    <div className="text-gray-500 text-xs">Ujian Akhir Semester</div>
+                    <div className="text-gray-800 max-w-sm">{schedule.paket.name}</div>
+                    <div className="text-gray-500 text-xs">{schedule.paket.mapel.nama} . {schedule.exam_plan.name}</div>
                   </div>
                 </td>
                 <td className="p-2">
-                  <div className="">40</div>
+                  <div className="">{schedule.paket.soal_count}</div>
                 </td>
                 <td className="p-2">
-                  <div className="">75</div>
+                  <div className="">{schedule.paket.kkm}</div>
                 </td>
                 <td className="p-2 whitespace-nowrap text-gray-500">
-                  <div className="text-center">22 Des 2021 07:30</div>
-                  <div className="text-center">22 Des 2021 10:30</div>
+                  <div className="text-center">{toDate(schedule.start_time)}</div>
+                  <div className="text-center">{toDate(schedule.end_time)}</div>
                 </td>
                 <td className="p-2">
                   <div className="text-center">
                       <button className="bg-green-500 rounded-md px-3 py-1 text-white shadow"
-                        onClick={() => router.push('/dashboard/detail-ujian')}
+                        onClick={() => setIsOpen(true)}
                       >
                           kerjakan
                         </button>
                   </div>
                 </td>
-              </tr>
+              </tr>))}
             </tbody>
           </table>
 
         </div>
       </div>
-    </div>
-  );
+      <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Informasi Ujian" description="okey jadi gini" action={<ButtonExamPage/>}/>
+    </>
+  )
+}
+
+function ButtonExamPage() {
+  const router = useRouter();
+
+  const onButtonClicked = () => {
+    router.push('/exam/index')
+  }
+
+  return (
+    <button
+      className="bg-green-500 px-4 py-1 rounded text-white font-nunito border border-green-800 shadow"
+      onClick={onButtonClicked}
+      >
+      mulai
+    </button>
+  )
 }

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { ToastContainer, toast } from 'react-toastify';
-import axios from "../../lib/services/axios";
 import Head from 'next/head'
+
+import axios from 'axios'
 
 import ExamBegin from "../../components/Layouts/ExamBegin"
 import QuestionOption from "../../components/QuestionOption"
-import Modal from "../../components/Dialog";
 
 function NavHead() {
     return (
@@ -48,7 +48,7 @@ export default function ExamIndex() {
     useEffect(() => {
         
         const getQuestion = () => {
-            api.get("/posts").then(res => {
+            axios.get("https://jsonplaceholder.typicode.com/posts").then(res => {
                 setQuestions(res.data)
                 setQuestion(res.data[0])
             }).catch(err => console.error(err))
@@ -60,7 +60,7 @@ export default function ExamIndex() {
     useEffect(() => {
 
         const getOptions = () => {
-            api.get(`/posts/${questionIndex}/comments`).then(res => {
+            axios.get(`https://jsonplaceholder.typicode.com/posts/${questionIndex}/comments`).then(res => {
                 setOptions(res.data)
             }).catch(err => console.error(err))
         }
@@ -68,7 +68,7 @@ export default function ExamIndex() {
         setQuestion(questions[questionIndex])
 
         getOptions()
-    }, [questionIndex])
+    }, [questionIndex, questions])
 
     const router = useRouter()
 
@@ -84,13 +84,6 @@ export default function ExamIndex() {
                 <title>Ujian</title>
             </Head>
             <ExamBegin header={<NavHead warn={warn} />}>
-            <Modal
-                isDialogOpen={isOpenDialog}
-                onCloseModal={() => setIsOpenDialog(false)}
-                title="Akhiri Ujian ini?"
-                description="Pastikan Kamu sudah mengoreksi soal"
-                action={<button className="px-4 py-1 rounded shadow bg-sky-500 border border-sky-600 font-medium text-white" onClick={() => router.push(`/exam/selesai`)}>Simpan</button>}
-            />
 
                 <div className="relative my-3 w-full max-w-7xl mx-auto">
                     <div className="grid grid-cols-12 gap-6 w-full mx-auto">

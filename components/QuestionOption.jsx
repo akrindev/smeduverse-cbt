@@ -11,9 +11,9 @@ export default function QuestionOption({ data: options }) {
         <RadioGroup value={selected} onChange={setSelected}>
           <RadioGroup.Label className="sr-only">Pilihan Jawaban</RadioGroup.Label>
           <div className="space-y-2">
-            {options.map((option) => (
+            {options && options.map((option) => (
               <RadioGroup.Option
-                key={option.title}
+                key={option.id}
                 value={option.body}
                 className={({ active, checked }) =>
                   `${

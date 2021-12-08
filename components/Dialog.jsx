@@ -1,19 +1,19 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useState } from 'react'
 
-export default function Modal({ isDialogOpen, onCloseModal, title, description, action }) {
+export default function Modal({ isOpen, setIsOpen, title, description, action }) {
 
   console.log('showing')
 
   return (
     <>
-      <Transition show={isDialogOpen} as={Fragment}>
+      <Transition show={isOpen} as={Fragment}>
         <Dialog
           as="div"
           className="fixed inset-0 z-10 overflow-y-auto"
-          onClose={onCloseModal}
+          onClose={() => setIsOpen(false)}
         >
-            <Dialog.Overlay className="fixed inset-0 bg-black opacity-50 filter backdrop-saturate-150" />
+            <Dialog.Overlay className="fixed inset-0 bg-black opacity-80 filter backdrop-blur-lg" />
           <div className="min-h-screen px-4 text-center">
             <Transition.Child
               as={Fragment}
@@ -58,7 +58,7 @@ export default function Modal({ isDialogOpen, onCloseModal, title, description, 
 
                 <div className="mt-4 flex items-center space-x-2">
                   {action}
-                  <button onClick={onCloseModal} className="px-3 py-1 bg-gray-200 rounded border border-gray-300">tutup</button>
+                  <button onClick={() => setIsOpen(false)} className="px-3 py-1 bg-gray-200 rounded border border-gray-300">tutup</button>
                 </div>
               </div>
             </Transition.Child>
