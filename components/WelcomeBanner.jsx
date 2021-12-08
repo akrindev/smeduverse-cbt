@@ -1,4 +1,5 @@
-export default function WelcomeBanner() {
+export default function WelcomeBanner({ user }) {
+  
   return (
     <div className="relative bg-indigo-200 p-4 sm:p-6 rounded-sm overflow-hidden mb-8">
 
@@ -46,8 +47,8 @@ export default function WelcomeBanner() {
 
       {/* Content */}
       <div className="relative">
-        <h1 className="text-2xl md:text-3xl text-gray-800 font-bold mb-1">Selamat datang, Syakirin Amin 👋</h1>
-        <p>XII - Rekayasa Perangkat Lunak</p>
+        <h1 className="text-2xl md:text-3xl text-gray-800 font-bold mb-1">Selamat datang, {user.student.fullname} 👋</h1>
+        <p>{user.student.rombel_aktif[0]?.nama ?? '~'}</p>
       </div>
 
     </div>

@@ -2,7 +2,8 @@ import UserMenu from "./UserMenu";
 
 export default function Header({
   sidebarOpen,
-  setSidebarOpen
+  setSidebarOpen,
+  user
 }) {
   return (
     <header className="sticky top-0 bg-white border-b border-gray-200 z-30">
@@ -34,7 +35,7 @@ export default function Header({
 
             {/*  Divider */}
             <hr className="w-px h-6 bg-gray-200 mx-3" />
-            <UserMenu />
+            <UserMenu user={user} />
 
           </div>
 
