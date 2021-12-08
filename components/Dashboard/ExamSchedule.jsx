@@ -4,6 +4,18 @@ import { api } from '../../lib/hooks/auth'
 
 import Modal from '../Dialog'
 
+const toDate = (day) => {
+  const date = new Date(day).toLocaleString('id-ID', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  });
+
+  return date
+}
+
 export default function ExamSchedule() {
   const [schedules, setSchedules] = useState([]);
 
@@ -37,21 +49,13 @@ export default function ExamSchedule() {
 
 function ScheduleTable({ schedules }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState(null)
 
   const router = useRouter();
 
-  const toDate = (day) => {
-    const date = new Date(day).toLocaleString('id-ID', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-    });
-
-    console.log(date)
-
-    return date
+  const handleSelectSchedule = (schedule) => {
+    setSelectedSchedule(schedule);
+    setIsOpen(true);
   }
 
   return (
@@ -106,7 +110,7 @@ function ScheduleTable({ schedules }) {
                 <td className="p-2">
                   <div className="text-center">
                       <button className="bg-green-500 rounded-md px-3 py-1 text-white shadow"
-                        onClick={() => setIsOpen(true)}
+                        onClick={() => handleSelectSchedule(schedule)}
                       >
                           kerjakan
                         </button>
@@ -118,7 +122,49 @@ function ScheduleTable({ schedules }) {
 
         </div>
       </div>
-      <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Informasi Ujian" description="okey jadi gini" action={<ButtonExamPage/>}/>
+      <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Informasi Ujian" description={<DescriptionModal data={selectedSchedule} />} action={<ButtonExamPage/>}/>
+    </>
+  )
+}
+
+function DescriptionModal({ data }) {
+  console.log(data)
+  return (
+    <>
+      <div className="flex flex-col font-nunito">
+        <div>
+          <div className="font-bold text-base">Nama Paket</div>
+          <div className="font-normal text-gray-800">({data.paket.kode}) {data.paket.name}</div>
+        </div>
+        <div className="mt-3">
+          <div className="font-bold text-base">Deskripsi Paket</div>
+          <div className="font-normal text-gray-800">{data.paket.description}</div>
+        </div>
+        <div className="mt-3">
+          <div className="font-bold text-base">Mapel</div>
+          <div className="font-normal text-gray-800">{data.paket.mapel.nama}</div>
+        </div>
+        <div className="mt-3">
+          <div className="font-bold text-base">Tingkat Kelas</div>
+          <div className="font-normal text-gray-800">{data.paket.tingkat_kelas}</div>
+        </div>
+        <div className="mt-3">
+          <div className="font-bold text-base">KKM</div>
+          <div className="font-normal text-gray-800">{data.paket.kkm}</div>
+        </div>
+        <div className="mt-3">
+          <div className="font-bold text-base">Waktu</div>
+          <div className="font-normal text-gray-800">{data.paket.waktu} menit</div>
+        </div>
+        <div className="mt-3">
+          <div className="font-bold text-base">Pada</div>
+          <div className="font-normal text-gray-800">{toDate(data.start_time)}</div>
+        </div>
+        <div className="mt-3">
+          <div className="font-bold text-base">Sampai</div>
+          <div className="font-normal text-gray-800">{toDate(data.end_time)}</div>
+        </div>
+      </div>
     </>
   )
 }
@@ -127,12 +173,12 @@ function ButtonExamPage() {
   const router = useRouter();
 
   const onButtonClicked = () => {
-    router.push('/exam/index')
+    router.push('/exam')
   }
 
   return (
     <button
-      className="bg-green-500 px-4 py-1 rounded text-white font-nunito border border-green-800 shadow"
+      className="bg-green-500 px-5 py-1 rounded-lg text-white font-nunito border shadow"
       onClick={onButtonClicked}
       >
       mulai

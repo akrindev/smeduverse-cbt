@@ -3,8 +3,6 @@ import { Fragment, useState } from 'react'
 
 export default function Modal({ isOpen, setIsOpen, title, description, action }) {
 
-  console.log('showing')
-
   return (
     <>
       <Transition show={isOpen} as={Fragment}>
@@ -51,9 +49,9 @@ export default function Modal({ isOpen, setIsOpen, title, description, action })
                   {title}
                 </Dialog.Title>
                 <div className="mt-2">
-                  <p className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500">
                     {description}
-                  </p>
+                  </div>
                 </div>
 
                 <div className="mt-4 flex items-center space-x-2">

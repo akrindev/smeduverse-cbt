@@ -16,6 +16,9 @@ export default function Dashboard() {
 
     return (
         <>
+            <Head>
+                <title>Dashboard</title>
+            </Head>
             <div className="flex h-screen overflow-hidden">
 
             {/* Sidebar */}
