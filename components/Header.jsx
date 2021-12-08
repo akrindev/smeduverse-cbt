@@ -5,6 +5,11 @@ export default function Header({
   setSidebarOpen,
   user
 }) {
+
+  if(!user) {
+    return <div>Loading</div>
+  }
+
   return (
     <header className="sticky top-0 bg-white border-b border-gray-200 z-30">
       <div className="px-4 sm:px-6 lg:px-8">
