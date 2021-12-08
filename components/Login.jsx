@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image'
 import Head from 'next/head'
@@ -12,10 +12,6 @@ export default function Login() {
         redirectIfAuthenticated: '/dashboard',
     });
 
-    if (user) {
-        router.push('/dashboard');
-    }
-
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [errors, setErrors] = useState([])
@@ -25,7 +21,6 @@ export default function Login() {
         event.preventDefault()
 
         login({ email, password, setErrors, setStatus })
-        console.log(email, password)
     }
 
     return (
@@ -55,6 +50,9 @@ export default function Login() {
                             
                             <hr className="mt-6 border-b-1 border-blueGray-300" />
                         </div>
+                        {errors && errors.map(error => (
+                            <div key={error} className="p-3 text-center bg-red-100 text-red-700 mb-3">{error}</div>
+                        ))}
                         <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
                             <form
                                 onSubmit={submitForm}

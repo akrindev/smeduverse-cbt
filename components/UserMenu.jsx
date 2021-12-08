@@ -3,10 +3,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 import { Transition } from '@headlessui/react';
+import { useAuth } from '../lib/hooks/auth'
 
 function UserMenu() {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const { user, logout } = useAuth();
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
@@ -55,11 +58,11 @@ function UserMenu() {
         className="origin-top-right z-10 absolute top-full right-0 min-w-max bg-white border border-gray-200 py-1.5 rounded shadow-lg overflow-hidden mt-1"
         show={dropdownOpen}
         enter="transition ease-out duration-200 transform"
-        enterStart="opacity-0 -translate-y-2"
-        enterEnd="opacity-100 translate-y-0"
+        enterstart="opacity-0 -translate-y-2"
+        enterend="opacity-100 translate-y-0"
         leave="transition ease-out duration-200"
-        leaveStart="opacity-100"
-        leaveEnd="opacity-0"
+        leavestart="opacity-100"
+        leaveend="opacity-0"
       >
         <div
           ref={dropdown}
@@ -74,7 +77,7 @@ function UserMenu() {
             <li>
               <div
                 className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3 cursor-pointer"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+                onClick={() => logout()}
               >
                 Sign Out
               </div>

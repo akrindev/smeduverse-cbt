@@ -7,7 +7,11 @@ import Header from "../../components/Header";
 import WelcomeBanner from "../../components/WelcomeBanner";
 import ExamSchedule from "../../components/Dashboard/ExamSchedule";
 
+import {useAuth} from '../../lib/hooks/auth'
+
 export default function Dashboard() {
+
+    const { user } = useAuth({ middleware: 'auth' })
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
