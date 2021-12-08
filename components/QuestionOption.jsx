@@ -43,7 +43,7 @@ export default function QuestionOption({ data: options }) {
                         <div className="text-sm">
                           <RadioGroup.Label
                             as="p"
-                            className={`font-medium  ${
+                            className={`font-base  ${
                               checked ? 'text-white' : 'text-gray-900'
                             }`}
                             dangerouslySetInnerHTML={{ __html: option.name }}
