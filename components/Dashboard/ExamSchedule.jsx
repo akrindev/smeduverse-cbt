@@ -1,7 +1,9 @@
-import router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react';
-import { api } from '../../lib/hooks/auth'
+import { api, useAuth } from '../../lib/hooks/auth'
 import { ThreeDots } from '../Loading'
+
+import useLocalStorage from '../../lib/hooks/useLocalStorage';
 
 import Modal from '../Dialog'
 
@@ -19,6 +21,8 @@ const toDate = (day) => {
 
 export default function ExamSchedule() {
   const [schedules, setSchedules] = useState([]);
+
+  const { user } = useAuth({ middleware: 'auth' })
 
   useEffect(() => {
     const getExamSchedule = async () => {
@@ -123,13 +127,12 @@ function ScheduleTable({ schedules }) {
 
         </div>
       </div>
-      <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Informasi Ujian" description={<DescriptionModal data={selectedSchedule} />} action={<ButtonExamPage/>}/>
+      <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Informasi Ujian" description={<DescriptionModal data={selectedSchedule} />} action={<ButtonExamPage token={selectedSchedule?.token} />}/>
     </>
   )
 }
 
 function DescriptionModal({ data }) {
-  console.log(data)
   return (
     <>
       <div className="flex flex-col font-nunito">
@@ -170,16 +173,20 @@ function DescriptionModal({ data }) {
   )
 }
 
-function ButtonExamPage() {
+function ButtonExamPage({ token }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [examQuestion, setExamQuestion] = useLocalStorage('exam-question', null);
   const router = useRouter();
 
-  const onButtonClicked = () => {
+  const onButtonClicked = async () => {
     // router.push('/exam')
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    
+    api.get(`/api/exam/paket/${token}`).then(res => {
+      setExamQuestion(res.data.data);
+
+      router.push('/exam');
+    }).catch(err => console.log(err)).finally(() => setIsLoading(false));
   }
 
   return (

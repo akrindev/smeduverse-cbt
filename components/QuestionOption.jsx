@@ -14,7 +14,7 @@ export default function QuestionOption({ data: options }) {
             {options && options.map((option) => (
               <RadioGroup.Option
                 key={option.id}
-                value={option.body}
+                value={option.id}
                 className={({ active, checked }) =>
                   `${
                     active
@@ -46,7 +46,7 @@ export default function QuestionOption({ data: options }) {
                             className={`font-base  ${
                               checked ? 'text-white' : 'text-gray-900'
                             }`}
-                            dangerouslySetInnerHTML={{ __html: option.name }}
+                            dangerouslySetInnerHTML={{ __html: option.answer }}
                           />
                         </div>
                       </div>

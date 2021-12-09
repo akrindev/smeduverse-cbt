@@ -1,9 +1,9 @@
+import Head from 'next/head'
 import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { ToastContainer, toast } from 'react-toastify';
-import Head from 'next/head'
 
-import axios from 'axios'
+import useLocalStorage from '../../lib/hooks/useLocalStorage';
 
 import ExamBegin from "../../components/Layouts/ExamBegin"
 import QuestionOption from "../../components/QuestionOption"
@@ -24,7 +24,7 @@ function NavHead() {
 export default function ExamIndex() {
     const [warn, setWarn] = useState(0)
     const [question, setQuestion] = useState({})
-    const [questions, setQuestions] = useState({})
+    const [questions, setQuestions] = useLocalStorage('exam-question')
     const [questionIndex, setQuestionIndex] = useState(0)
     const [options, setOptions] = useState([])
     // dialog state
@@ -48,33 +48,27 @@ export default function ExamIndex() {
     useEffect(() => {
         
         const getQuestion = () => {
-            axios.get("https://jsonplaceholder.typicode.com/posts").then(res => {
-                setQuestions(res.data)
-                setQuestion(res.data[0])
-            }).catch(err => console.error(err))
+            if(!questions) {
+                console.log('no questions')
+            } else {
+                setQuestion(questions[questionIndex])
+            }
         }
-
+        
         getQuestion()
     }, [])
-
+    
     useEffect(() => {
-
-        const getOptions = () => {
-            axios.get(`https://jsonplaceholder.typicode.com/posts/${questionIndex}/comments`).then(res => {
-                setOptions(res.data)
-            }).catch(err => console.error(err))
-        }
-
         setQuestion(questions[questionIndex])
+        console.log(question, questionIndex)
 
-        getOptions()
-    }, [questionIndex, questions])
+    }, [questionIndex])
 
     const router = useRouter()
 
     const dangerHTML = () => {
         return {
-            __html: question?.body ?? ""
+            __html: question?.question ?? ""
         }
     }
 
@@ -91,7 +85,7 @@ export default function ExamIndex() {
                             <div className="bg-white rounded shadow">
                                 {/* header info */}
                                 <div className="px-5 py-3 border-b border-gray-200 font-nunito font-semibold text-xl">
-                                    Soal ke 1
+                                    Soal ke {questionIndex + 1}
                                 </div>
                                 {/* pertanyaan */}  
                                 <div className="px-4 py-3 font-nunito font-normal text-base" dangerouslySetInnerHTML={dangerHTML()} />
@@ -99,18 +93,18 @@ export default function ExamIndex() {
                                 <div className="border-b border-gray-100"></div>
 
                                 <div className="p-3">
-                                    <QuestionOption data={options} />
+                                    <QuestionOption data={question.choices} />
                                 </div>
 
                                 <div className="p-3 pb-5">
                                     <div className="flex items-center justify-between">
-                                        <button onClick={() => setQuestionIndex(prev => prev - 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md">
+                                        <button onClick={() => setQuestionIndex(prev => prev - 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md disabled:opacity-50" disabled={questionIndex == 0}>
                                             Soal Sebelumnya
                                         </button>
                                         <button className="px-3 py-2 bg-yellow-500 border border-yellow-600 text-gray-100 text-sm rounded-md">
                                             Ragu-ragu
                                         </button>
-                                        <button onClick={() => setQuestionIndex(prev => prev + 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md">
+                                        <button onClick={() => setQuestionIndex(prev => prev + 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md disabled:opacity-50" disabled={questionIndex == questions.length - 1}>
                                             Soal Berikutnya
                                         </button>
                                     </div>
@@ -124,7 +118,7 @@ export default function ExamIndex() {
                             <div className="p-4 bg-white rounded shadow">
                                 <div className="font-bold text-base mb-5">Navigasi Soal</div>
                                 <div className="grid grid-cols-10 gap-2 w-full mx-auto">
-                                    {[1,2,3,4,5,6,7,8,9,10].map(i => (<NavButirSoal onClick={() => setQuestionIndex(i)} key={i} number={i}/>) )}
+                                    {questions.map((question, index) => (<NavButirSoal onClick={() => setQuestionIndex(index)} key={question.id} number={index+1}/>) )}
                                 </div>
                                 <div className="mt-5 flex justify-end">
                                     <button
