@@ -1,6 +1,7 @@
 import router, { useRouter } from 'next/router'
 import { useEffect, useState } from 'react';
 import { api } from '../../lib/hooks/auth'
+import { ThreeDots } from '../Loading'
 
 import Modal from '../Dialog'
 
@@ -170,18 +171,24 @@ function DescriptionModal({ data }) {
 }
 
 function ButtonExamPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const onButtonClicked = () => {
-    router.push('/exam')
+    // router.push('/exam')
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
   }
 
   return (
     <button
-      className="bg-green-500 px-5 py-1 rounded-lg text-white font-nunito border shadow"
+      className="flex bg-green-500 px-5 py-1 rounded-lg text-white font-nunito border shadow disabled:opacity-50"
       onClick={onButtonClicked}
+      disabled={isLoading}
       >
-      mulai
+        {isLoading ? (<><ThreeDots/> <span className="ml-2">memuat soal</span> </>) : (<>Mulai</>)}
     </button>
   )
 }
