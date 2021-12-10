@@ -183,9 +183,14 @@ function ButtonExamPage({ token }) {
     setIsLoading(true);
     
     api.get(`/api/exam/paket/${token}`).then(res => {
-      setExamQuestion(res.data.data);
 
-      router.push('/exam');
+      console.log(res.data)
+
+      // set exam to local storage
+      // setExamQuestion(res.data.data);
+
+      // // ?then move to exam page
+      // router.push('/exam');
     }).catch(err => console.log(err)).finally(() => setIsLoading(false));
   }
 
