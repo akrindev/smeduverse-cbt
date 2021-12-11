@@ -175,7 +175,8 @@ function DescriptionModal({ data }) {
 
 function ButtonExamPage({ token }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [examQuestion, setExamQuestion] = useLocalStorage('exam-question', null);
+  const [examQuestions, setExamQuestions] = useLocalStorage('exam-questions', null);
+  const [examSavedAnswers, setSavedAnswers] = useLocalStorage('exam-saved-answers', null);
   const router = useRouter();
 
   const onButtonClicked = async () => {
@@ -187,10 +188,11 @@ function ButtonExamPage({ token }) {
       console.log(res.data)
 
       // set exam to local storage
-      // setExamQuestion(res.data.data);
+      setExamQuestions(res.data.data.paket.soal);
+      setSavedAnswers(res.data.data.answer_sheets[0]?.saved_answer);
 
       // // ?then move to exam page
-      // router.push('/exam');
+      router.push('/exam');
     }).catch(err => console.log(err)).finally(() => setIsLoading(false));
   }
 

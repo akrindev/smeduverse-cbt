@@ -2,6 +2,7 @@ import Head from 'next/head'
 import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { ToastContainer, toast } from 'react-toastify';
+import _ from 'lodash';
 
 import useLocalStorage from '../../lib/hooks/useLocalStorage';
 
@@ -24,7 +25,9 @@ function NavHead() {
 export default function ExamIndex() {
     const [warn, setWarn] = useState(0)
     const [question, setQuestion] = useState({})
-    const [questions, setQuestions] = useLocalStorage('exam-question')
+    const [questions, setQuestions] = useLocalStorage('exam-questions')
+    const [savedAnswers, setSavedAnswers] = useLocalStorage('exam-saved-answers')
+    const [chosenAnswer, setChosenAnswer] = useState(null)
     const [questionIndex, setQuestionIndex] = useState(0)
     const [options, setOptions] = useState([])
     // dialog state
@@ -35,6 +38,22 @@ export default function ExamIndex() {
         console.log('clicked')
     }
 
+    const handleChosen = (value) => {
+        // update saved answers
+        setSavedAnswers(savedAnswers => {
+            const newSavedAnswers = _.find(savedAnswers, (item) => item.exam_soal_id === question.id)
+            newSavedAnswers.answer_chosen_id = value
+
+            return savedAnswers
+        })
+    }
+
+    const isChosen = (chosenId) => {
+        const chosen = _.find(savedAnswers, (item) => item.exam_soal_id === chosenId)
+
+        return chosen.answer_chosen_id != null
+    }
+
     // prevent leave window
     useEffect(() => {
         // on blur
@@ -42,27 +61,31 @@ export default function ExamIndex() {
             // alert("Peringatan meninggalkan halaman ujian")
             setWarn(prev => prev + 1)
             toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
+            const sound = new Audio('/assets/sounds/goes.ogg')
+            sound.play()
         }
     }, [warn])
 
+    const getChosenAnswer = () => {
+        const chosen = _.find(savedAnswers, { exam_soal_id: question?.id })
+
+        setChosenAnswer(chosen)
+    }
+
     useEffect(() => {
         
-        const getQuestion = () => {
-            if(!questions) {
-                console.log('no questions')
-            } else {
-                setQuestion(questions[questionIndex])
-            }
+        if(!questions || !savedAnswers) {
+            router.replace('/dashboard')
         }
         
-        getQuestion()
+        setQuestion(questions[questionIndex])
+        getChosenAnswer()
     }, [])
     
     useEffect(() => {
         setQuestion(questions[questionIndex])
-        console.log(question, questionIndex)
-
-    }, [questionIndex])
+        getChosenAnswer()
+    }, [questionIndex, question])
 
     const router = useRouter()
 
@@ -85,7 +108,7 @@ export default function ExamIndex() {
                             <div className="bg-white rounded shadow">
                                 {/* header info */}
                                 <div className="px-5 py-3 border-b border-gray-200 font-nunito font-semibold text-xl">
-                                    Soal ke {questionIndex + 1}
+                                    Pertanyaan {questionIndex + 1}
                                 </div>
                                 {/* pertanyaan */}  
                                 <div className="px-4 py-3 font-nunito font-normal text-base" dangerouslySetInnerHTML={dangerHTML()} />
@@ -93,7 +116,7 @@ export default function ExamIndex() {
                                 <div className="border-b border-gray-100"></div>
 
                                 <div className="p-3">
-                                    <QuestionOption data={question.choices} />
+                                    <QuestionOption data={question.choices} chosen={chosenAnswer} onChosen={handleChosen} />
                                 </div>
 
                                 <div className="p-3 pb-5">
@@ -104,7 +127,7 @@ export default function ExamIndex() {
                                         <button className="px-3 py-2 bg-yellow-500 border border-yellow-600 text-gray-100 text-sm rounded-md">
                                             Ragu-ragu
                                         </button>
-                                        <button onClick={() => setQuestionIndex(prev => prev + 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md disabled:opacity-50" disabled={questionIndex == questions.length - 1}>
+                                        <button onClick={() => setQuestionIndex(prev => prev + 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md disabled:opacity-50" disabled={questions && questionIndex == questions.length - 1}>
                                             Soal Berikutnya
                                         </button>
                                     </div>
@@ -118,7 +141,13 @@ export default function ExamIndex() {
                             <div className="p-4 bg-white rounded shadow">
                                 <div className="font-bold text-base mb-5">Navigasi Soal</div>
                                 <div className="grid grid-cols-10 gap-2 w-full mx-auto">
-                                    {questions.map((question, index) => (<NavButirSoal onClick={() => setQuestionIndex(index)} key={question.id} number={index+1}/>) )}
+                                    {questions && questions.map((question, index) => (
+                                        <NavButirSoal
+                                            isChosen={isChosen(question.id)}
+                                            onClick={() => setQuestionIndex(index)}
+                                            key={question.id}
+                                            number={index+1}/>)
+                                    )}
                                 </div>
                                 <div className="mt-5 flex justify-end">
                                     <button
@@ -157,18 +186,14 @@ export default function ExamIndex() {
     )
 }
 
-function NavButirSoal({ number, onClick }) {
+function NavButirSoal({ number, isChosen, onClick }) {
     return (
-        <>
             <div className="col-span-1 relative" onClick={onClick}>
-                <div className="border border-gray-600 font-bold cursor-pointer bg-gray-200 py-1 text-center rounded hover:transform hover:scale-105 focus:scale-95 text-gray-600">{number}</div>
-
-                <div className="absolute -top-3 -right-1">
-                    <div className="text-white z-20 flex items-center justify-center text-xs">
-                        <span className="bg-coolGray-700 rounded-full border border-gray-800 px-1.5"> -</span>
-                    </div>
-                </div>
+                <div className={`p-1 font-medium cursor-pointer border
+                    ${isChosen ?
+                        'bg-green-500 text-white border-blue-400' :
+                        'bg-gray-200 border-gray-600 text-gray-600'
+                    } text-xs text-center rounded hover:transform hover:scale-105 focus:scale-95 `}>{number}</div>
             </div>
-        </>
     )
 }

@@ -1,14 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RadioGroup } from '@headlessui/react'
 
 
-export default function QuestionOption({ data: options }) {
-  const [selected, setSelected] = useState('')
+export default function QuestionOption({ data: options, chosen, onChosen }) {
+  const [selected, setSelected] = useState(null)
+
+  useEffect(() => {
+    setSelected(chosen?.answer_chosen_id)
+  }, [chosen])
+
+  const handleChange = (value) => {
+    setSelected(value)
+    onChosen(value)
+  }
 
   return (
     <div className="w-full py-5">
       <div className="w-full mx-auto">
-        <RadioGroup value={selected} onChange={setSelected}>
+        <RadioGroup value={selected} onChange={handleChange}>
           <RadioGroup.Label className="sr-only">Pilihan Jawaban</RadioGroup.Label>
           <div className="space-y-2">
             {options && options.map((option) => (
