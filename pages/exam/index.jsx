@@ -4,6 +4,8 @@ import { useRouter } from "next/router"
 import { ToastContainer, toast } from 'react-toastify';
 import _ from 'lodash';
 
+import { api } from '../../lib/hooks/auth'
+
 import useLocalStorage from '../../lib/hooks/useLocalStorage';
 
 import ExamBegin from "../../components/Layouts/ExamBegin"
@@ -29,7 +31,7 @@ export default function ExamIndex() {
     const [savedAnswers, setSavedAnswers] = useLocalStorage('exam-saved-answers')
     const [chosenAnswer, setChosenAnswer] = useState(null)
     const [questionIndex, setQuestionIndex] = useState(0)
-    const [options, setOptions] = useState([])
+    const [isSaving, setIsSaving] = useState(false)
     // dialog state
     const [isOpenDialog, setIsOpenDialog] = useState(false)
 
@@ -38,13 +40,24 @@ export default function ExamIndex() {
         console.log('clicked')
     }
 
-    const handleChosen = (value) => {
+    const handleChosen = async (value) => {
+        setIsSaving(true)
         // update saved answers
-        setSavedAnswers(savedAnswers => {
-            const newSavedAnswers = _.find(savedAnswers, (item) => item.exam_soal_id === question.id)
-            newSavedAnswers.answer_chosen_id = value
+        const answer = _.find(savedAnswers, (item) => item.exam_soal_id === question.id)
 
-            return savedAnswers
+        await api.post('/api/exam/save-answer', {
+            'exam_answer_sheet_id': answer.exam_answer_sheet_id,
+            'exam_soal_id': answer.exam_soal_id,
+            'answer_chosen_id': value
+        }).then((res) => {
+            setSavedAnswers(savedAnswers => {
+                const newSavedAnswers = _.find(savedAnswers, (item) => item.exam_soal_id === question.id)
+                newSavedAnswers.answer_chosen_id = value
+    
+                return savedAnswers
+            })
+        }).catch((err) => console.log(err)).finally(() => {
+            setIsSaving(false)
         })
     }
 
@@ -85,7 +98,7 @@ export default function ExamIndex() {
     useEffect(() => {
         setQuestion(questions[questionIndex])
         getChosenAnswer()
-    }, [questionIndex, question])
+    }, [questionIndex, question, savedAnswers])
 
     const router = useRouter()
 
@@ -116,7 +129,7 @@ export default function ExamIndex() {
                                 <div className="border-b border-gray-100"></div>
 
                                 <div className="p-3">
-                                    <QuestionOption data={question.choices} chosen={chosenAnswer} onChosen={handleChosen} />
+                                    <QuestionOption data={question.choices} chosen={chosenAnswer} onChosen={handleChosen} isSaving={isSaving}/>
                                 </div>
 
                                 <div className="p-3 pb-5">

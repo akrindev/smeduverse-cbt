@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { RadioGroup } from '@headlessui/react'
 
 
-export default function QuestionOption({ data: options, chosen, onChosen }) {
+export default function QuestionOption({ data: options, chosen, onChosen, isSaving }) {
   const [selected, setSelected] = useState(null)
 
   useEffect(() => {
@@ -24,6 +24,7 @@ export default function QuestionOption({ data: options, chosen, onChosen }) {
               <RadioGroup.Option
                 key={option.id}
                 value={option.id}
+                disabled={isSaving}
                 className={({ active, checked }) =>
                   `${
                     active
@@ -32,6 +33,9 @@ export default function QuestionOption({ data: options, chosen, onChosen }) {
                   }
                   ${
                     checked ? 'bg-green-600 text-white' : 'bg-white'
+                  }
+                  ${
+                    isSaving ? 'cursor-not-allowed bg-gray-200' : 'cursor-pointer'
                   }
                     relative border border-lightBlue-100 rounded-lg px-3 py-2 cursor-pointer flex focus:outline-none`
                 }
