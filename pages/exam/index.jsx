@@ -10,6 +10,8 @@ import useLocalStorage from '../../lib/hooks/useLocalStorage';
 
 import ExamBegin from "../../components/Layouts/ExamBegin"
 import QuestionOption from "../../components/QuestionOption"
+import NavButirSoal from '../../components/Exam/NavButirSoal';
+import Modal from '../../components/Dialog'
 
 function NavHead() {
     return (
@@ -195,18 +197,66 @@ export default function ExamIndex() {
                 </div>
                 <ToastContainer />
             </ExamBegin>
+            <Modal isOpen={isOpenDialog} setIsOpen={setIsOpenDialog} title={`Yakin udah selesai?`} description={<ChosenAnswer answers={savedAnswers}/>} action={<ButtonResult sheetId={savedAnswers && savedAnswers[0]?.exam_answer_sheet_id} />}/>
         </>
     )
 }
 
-function NavButirSoal({ number, isChosen, onClick }) {
-    return (
-            <div className="col-span-1 relative" onClick={onClick}>
-                <div className={`p-1 font-medium cursor-pointer border
-                    ${isChosen ?
-                        'bg-green-500 text-white border-blue-400' :
-                        'bg-gray-200 border-gray-600 text-gray-600'
-                    } text-xs text-center rounded hover:transform hover:scale-105 focus:scale-95 `}>{number}</div>
-            </div>
+function ButtonResult({ sheetId }) {
+    const [isLoading, setIsLoading] = useState(false)
+    const router = useRouter();
+
+    const handleClick = async () => {
+        setIsLoading(true)
+        await api.post('/api/exam/get-result', {
+            sheet_id: sheetId
+        }).then(res => {
+           if(res.status == 200) {
+               toast.success('Lembar Ujian berhasil di kumpulkan')
+                //    remove local storaage exam and answer
+                window.localStorage.removeItem('exam-questions')
+                window.localStorage.removeItem('exam-saved-answers')
+               router.replace('/exam/selesai')
+           } 
+        })
+        .catch(err => console.error(err)).finally(() => setIsLoading(false))
+    }
+
+    return (<>
+        <button className={`bg-green-500 text-white rounded-md px-4 py-1 disabled:opacity-60`} disabled={isLoading} onClick={handleClick}>
+            {isLoading ? 'Mengumpulkan' : 'Kumpulkan'}
+        </button>
+    </>
     )
 }
+
+function ChosenAnswer({ answers }) {
+    
+    // get chosen answer where answer_chosen_id is not null
+    const chosenAnswer = _.filter(answers, (answer) => answer.answer_chosen_id != null).length || 0
+    const emptyAnswer = _.filter(answers, (answer) => answer.answer_chosen_id == null).length || 0
+    
+    return (
+        <>
+            <div>
+                <span>Udah di koreksi belom?</span>
+                <div className="divide-black divide-y my-2"></div>
+                <div className="flex items-center space-x-3">
+                    <div className="flex flex-col items-center">
+                        <strong>Dijawab</strong>
+                        <span>{chosenAnswer}</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <strong>Kosong</strong>
+                        <span>{emptyAnswer}</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <strong>Total</strong>
+                        <span>{answers.length}</span>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}
+
