@@ -44,7 +44,7 @@ function UserMenu({ user }) {
         aria-expanded={dropdownOpen}
       >
 
-        <Image src={`/assets/images/tutwurihandayani.png`} width={32} height={32} className="w-8 h-8 rounded-full"/>
+        <Image src={`/assets/images/tutwurihandayani.png`} width={32} height={32} alt='user pics' className="w-8 h-8 rounded-full"/>
 
         <div className="flex items-center truncate">
           <span className="truncate ml-2 text-sm font-medium group-hover:text-gray-800">{user?.student?.fullname}</span>

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { ToastContainer, toast } from 'react-toastify';
 import _ from 'lodash';
+import { toDate } from '../../lib/todate';
 
 import { api } from '../../lib/hooks/auth'
 
@@ -13,14 +14,27 @@ import QuestionOption from "../../components/QuestionOption"
 import NavButirSoal from '../../components/Exam/NavButirSoal';
 import Modal from '../../components/Dialog'
 
-function NavHead() {
+function NavHead({ dateEnd }) {
+
+    
+    let hour = Math.floor((dateEnd / 3600000) % 24); // time diff's hours (modulated to 24)
+    let min = Math.floor((dateEnd / 60000) % 60); // time diff's minutes (modulated to 60)
+    let sec = Math.floor((dateEnd / 1000) % 60); // time diff's seconds (modulated to 60)
+
     return (
         <>
-            <div className="flex justify-between hover:cursor-pointer max-w-7xl mx-auto">
-                <div className="text-lg font-bold text-white">
-                    Computer Based Test
+            <div className="flex flex-col justify-between hover:cursor-pointer max-w-7xl mx-auto">
+                <div className='flex items-center justify-between'>
+                    <div className="text-lg font-bold text-white">
+                        CBT
+                    </div>
+                    <div className="rounded-xl text-xs shadow-2xl px-4 py-1 bg-white font-semibold">
+                        sisa waktu: {`${hour}j ${min}m ${sec}d`}
+                    </div>
                 </div>
-                <div className="rounded-xl text-xs shadow-2xl px-4 py-1 bg-white">sisa waktu: 34 menit</div>
+                <div className="bg-white px-3 py-2 mt-3 -mb-6 rounded shadow">
+                    hellow
+                </div>
             </div>
         </>
     )
@@ -31,15 +45,22 @@ export default function ExamIndex() {
     const [question, setQuestion] = useState({})
     const [questions, setQuestions] = useLocalStorage('exam-questions')
     const [savedAnswers, setSavedAnswers] = useLocalStorage('exam-saved-answers')
+    const [examInfo, setExamInfo] = useLocalStorage('exam-info');
     const [chosenAnswer, setChosenAnswer] = useState(null)
     const [questionIndex, setQuestionIndex] = useState(0)
     const [isSaving, setIsSaving] = useState(false)
+    const [endTime, setEndTime] = useState(null)
     // dialog state
     const [isOpenDialog, setIsOpenDialog] = useState(false)
+   
+    if(!questions && !savedAnswers) {
+        if(typeof window !== "undefined") {
+            window.location.href = '/dashboard'
+        }
+    }
 
     const stopExam = () => {
         setIsOpenDialog(true)
-        console.log('clicked')
     }
 
     const handleChosen = async (value) => {
@@ -71,35 +92,49 @@ export default function ExamIndex() {
 
     // prevent leave window
     useEffect(() => {
-        // on blur
-        window.onblur = () => {
-            // alert("Peringatan meninggalkan halaman ujian")
-            setWarn(prev => prev + 1)
-            toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
-            const sound = new Audio('/assets/sounds/goes.ogg')
-            sound.play()
+        // on 
+        if (typeof window !== "undefined") {
+            window.onblur = () => {
+                // alert("Peringatan meninggalkan halaman ujian")
+                setWarn(prev => prev + 1)
+                toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
+                const sound = new Audio('/assets/sounds/goes.ogg')
+                sound.play()
+            }
         }
     }, [warn])
 
-    const getChosenAnswer = () => {
-        const chosen = _.find(savedAnswers, { exam_soal_id: question?.id })
-
-        setChosenAnswer(chosen)
-    }
-
+    
     useEffect(() => {
-        
-        if(!questions || !savedAnswers) {
-            router.replace('/dashboard')
+        const getChosenAnswer = () => {
+            const chosen = _.find(savedAnswers, { exam_soal_id: question?.id })
+    
+            setChosenAnswer(chosen)
         }
-        
-        setQuestion(questions[questionIndex])
-        getChosenAnswer()
+
+        if(questions && questions.length > 0) {            
+            setQuestion(questions[questionIndex])
+            getChosenAnswer()
+        }
+
+        setInterval(() => {
+            const time = new Date(examInfo.end_time) - new Date()
+
+            setEndTime(prev => time)
+        }, 1000)
     }, [])
     
     useEffect(() => {
-        setQuestion(questions[questionIndex])
-        getChosenAnswer()
+        const getChosenAnswer = () => {
+            const chosen = _.find(savedAnswers, { exam_soal_id: question?.id })
+    
+            setChosenAnswer(chosen)
+        }
+        
+        if(questions && questions.length > 0) {            
+            setQuestion(questions[questionIndex])
+            getChosenAnswer()
+        }
     }, [questionIndex, question, savedAnswers])
 
     const router = useRouter()
@@ -115,7 +150,7 @@ export default function ExamIndex() {
             <Head>
                 <title>Ujian</title>
             </Head>
-            <ExamBegin header={<NavHead warn={warn} />}>
+            <ExamBegin header={<NavHead dateEnd={endTime} />}>
 
                 <div className="relative my-3 w-full max-w-7xl mx-auto">
                     <div className="grid grid-cols-12 gap-6 w-full mx-auto">
@@ -136,13 +171,13 @@ export default function ExamIndex() {
 
                                 <div className="p-3 pb-5">
                                     <div className="flex items-center justify-between">
-                                        <button onClick={() => setQuestionIndex(prev => prev - 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md disabled:opacity-50" disabled={questionIndex == 0}>
+                                        <button onClick={() => setQuestionIndex(prev => prev - 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50" disabled={questionIndex == 0}>
                                             Soal Sebelumnya
                                         </button>
-                                        <button className="px-3 py-2 bg-yellow-500 border border-yellow-600 text-gray-100 text-sm rounded-md">
+                                        <button className="px-3 py-2 bg-yellow-500 border border-yellow-600 text-gray-100 text-xs rounded-md">
                                             Ragu-ragu
                                         </button>
-                                        <button onClick={() => setQuestionIndex(prev => prev + 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-sm rounded-md disabled:opacity-50" disabled={questions && questionIndex == questions.length - 1}>
+                                        <button onClick={() => setQuestionIndex(prev => prev + 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50" disabled={questions && questionIndex == questions.length - 1}>
                                             Soal Berikutnya
                                         </button>
                                     </div>
@@ -214,9 +249,13 @@ function ButtonResult({ sheetId }) {
            if(res.status == 200) {
                toast.success('Lembar Ujian berhasil di kumpulkan')
                 //    remove local storaage exam and answer
-                window.localStorage.removeItem('exam-questions')
-                window.localStorage.removeItem('exam-saved-answers')
-               router.replace('/exam/selesai')
+                setTimeout(() => {
+                    if (typeof window !== "undefined") {
+                        window.localStorage.removeItem('exam-questions')
+                        window.localStorage.removeItem('exam-saved-answers')
+                        router.push('/exam/selesai')
+                    }
+                }, 1200)
            } 
         })
         .catch(err => console.error(err)).finally(() => setIsLoading(false))

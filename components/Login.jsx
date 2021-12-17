@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 import Image from 'next/image'
 import Head from 'next/head'
 import { useAuth } from '../lib/hooks/auth';
 
 export default function Login() {
-    const router = useRouter();
 
     const { login, user } = useAuth({
         middleware: 'guest',

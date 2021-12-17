@@ -78,6 +78,7 @@ export default function Sidebar({
           <Image src={`/assets/images/tutwurihandayani.png`}
             width={32}
             height={32}
+            alt='tutwurihandayani'
           />
         </div>
 

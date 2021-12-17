@@ -5,19 +5,10 @@ import { ThreeDots } from '../Loading'
 
 import useLocalStorage from '../../lib/hooks/useLocalStorage';
 
+import { toDate } from '../../lib/todate';
 import Modal from '../Dialog'
-
-const toDate = (day) => {
-  const date = new Date(day).toLocaleString('id-ID', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-  });
-
-  return date
-}
+import ButtonKerjakan from '../ButtonKerjakan';
+import DescriptionModalExam from '../DescriptionModalExam';
 
 export default function ExamSchedule() {
   const [schedules, setSchedules] = useState([]);
@@ -26,9 +17,9 @@ export default function ExamSchedule() {
 
   useEffect(() => {
     const getExamSchedule = async () => {
-      const { data } = await api.get('/api/exam/schedule-list');
-
-      setSchedules(data.ujian_schedule);
+      await api.get('/api/exam/schedule-list').then((res) => {
+        setSchedules(res.data.ujian_schedule);
+      }).catch(err => console.log(err))
     }
 
     getExamSchedule();
@@ -55,8 +46,6 @@ export default function ExamSchedule() {
 function ScheduleTable({ schedules }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null)
-
-  const router = useRouter();
 
   const handleSelectSchedule = (schedule) => {
     setSelectedSchedule(schedule);
@@ -112,14 +101,8 @@ function ScheduleTable({ schedules }) {
                   <div className="text-center">{toDate(schedule.start_time)}</div>
                   <div className="text-center">{toDate(schedule.end_time)}</div>
                 </td>
-                <td className="p-2">
-                  <div className="text-center">
-                      <button className="bg-green-500 rounded-md px-3 py-1 text-white shadow"
-                        onClick={() => handleSelectSchedule(schedule)}
-                      >
-                          kerjakan
-                        </button>
-                  </div>
+                <td className="p-2 whitespace-nowrap">
+                  <ButtonKerjakan onClick={() => handleSelectSchedule(schedule)} schedule={schedule} />                  
                 </td>
               </tr>))}
             </tbody>
@@ -127,56 +110,16 @@ function ScheduleTable({ schedules }) {
 
         </div>
       </div>
-      <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Informasi Ujian" description={<DescriptionModal data={selectedSchedule} />} action={<ButtonExamPage token={selectedSchedule?.token} />}/>
-    </>
-  )
-}
-
-function DescriptionModal({ data }) {
-  return (
-    <>
-      <div className="flex flex-col font-nunito">
-        <div>
-          <div className="font-bold text-base">Nama Paket</div>
-          <div className="font-normal text-gray-800">({data.paket.kode}) {data.paket.name}</div>
-        </div>
-        <div className="mt-3">
-          <div className="font-bold text-base">Deskripsi Paket</div>
-          <div className="font-normal text-gray-800">{data.paket.description}</div>
-        </div>
-        <div className="mt-3">
-          <div className="font-bold text-base">Mapel</div>
-          <div className="font-normal text-gray-800">{data.paket.mapel.nama}</div>
-        </div>
-        <div className="mt-3">
-          <div className="font-bold text-base">Tingkat Kelas</div>
-          <div className="font-normal text-gray-800">{data.paket.tingkat_kelas}</div>
-        </div>
-        <div className="mt-3">
-          <div className="font-bold text-base">KKM</div>
-          <div className="font-normal text-gray-800">{data.paket.kkm}</div>
-        </div>
-        <div className="mt-3">
-          <div className="font-bold text-base">Waktu</div>
-          <div className="font-normal text-gray-800">{data.paket.waktu} menit</div>
-        </div>
-        <div className="mt-3">
-          <div className="font-bold text-base">Pada</div>
-          <div className="font-normal text-gray-800">{toDate(data.start_time)}</div>
-        </div>
-        <div className="mt-3">
-          <div className="font-bold text-base">Sampai</div>
-          <div className="font-normal text-gray-800">{toDate(data.end_time)}</div>
-        </div>
-      </div>
+      <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Informasi Ujian" description={<DescriptionModalExam data={selectedSchedule} />} action={<ButtonExamPage token={selectedSchedule?.token} />}/>
     </>
   )
 }
 
 function ButtonExamPage({ token }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [examQuestions, setExamQuestions] = useLocalStorage('exam-questions', null);
-  const [examSavedAnswers, setSavedAnswers] = useLocalStorage('exam-saved-answers', null);
+  const [examQuestions, setExamQuestions] = useLocalStorage('exam-questions', []);
+  const [examSavedAnswers, setSavedAnswers] = useLocalStorage('exam-saved-answers', []);
+  const [examInfo, setExamInfo] = useLocalStorage('exam-info', {});
   const router = useRouter();
 
   const onButtonClicked = async () => {
@@ -184,13 +127,16 @@ function ButtonExamPage({ token }) {
     setIsLoading(true);
     
     api.get(`/api/exam/paket/${token}`).then(res => {
-
-      console.log(res.data)
-
       // set exam to local storage
-      setExamQuestions(res.data.data.paket.soal);
-      setSavedAnswers(res.data.data.answer_sheets[0]?.saved_answer);
+      setExamQuestions(prev => res.data.data.paket.soal);
+      setSavedAnswers(prev => res.data.data.answer_sheets[0]?.saved_answer);
 
+      setExamInfo({
+        start_time: res.data.data.start_time,
+        end_time: res.data.data.end_time,
+        mapel: res.data.data.paket.mapel.nama,
+        tingkat: res.data.data.paket.tingkat_kelas
+      })
       // // ?then move to exam page
       router.push('/exam');
     }).catch(err => console.log(err)).finally(() => setIsLoading(false));
