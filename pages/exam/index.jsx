@@ -54,7 +54,7 @@ export default function ExamIndex() {
     const [isOpenDialog, setIsOpenDialog] = useState(false)
 
     if (!questions && !savedAnswers) {
-        if (typeof window !== "undefined") {
+        if(typeof window !== "undefined") {
             window.location.href = '/dashboard'
         }
     }
@@ -93,8 +93,8 @@ export default function ExamIndex() {
     // prevent leave window
     useEffect(() => {
         // on 
-        if (typeof window !== "undefined") {
-            window.onblur = () => {
+        if (typeof global.window !== "undefined") {
+            global.window.onblur = () => {
                 // alert("Peringatan meninggalkan halaman ujian")
                 setWarn(prev => prev + 1)
                 toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
@@ -150,7 +150,7 @@ export default function ExamIndex() {
             <Head>
                 <title>Ujian</title>
             </Head>
-            <ExamBegin header={<NavHead dateEnd={endTime} mapel={examInfo.mapel} tingkatKelas={examInfo.tingkat} />}>
+            <ExamBegin header={<NavHead dateEnd={endTime} mapel={examInfo?.mapel} tingkatKelas={examInfo?.tingkat} />}>
 
                 <div className="relative my-3 w-full max-w-7xl mx-auto">
                     <div className="grid grid-cols-12 gap-6 w-full mx-auto">
@@ -250,11 +250,9 @@ function ButtonResult({ sheetId }) {
                 toast.success('Lembar Ujian berhasil di kumpulkan')
                 //    remove local storaage exam and answer
                 setTimeout(() => {
-                    if (typeof window !== "undefined") {
-                        window.localStorage.removeItem('exam-questions')
-                        window.localStorage.removeItem('exam-saved-answers')
-                        router.push('/exam/selesai')
-                    }
+                    localStorage.removeItem('exam-questions')
+                    localStorage.removeItem('exam-saved-answers')
+                    router.push('/exam/selesai')
                 }, 1200)
             }
         })
