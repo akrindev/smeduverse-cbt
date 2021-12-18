@@ -1,9 +1,9 @@
 import Head from 'next/head'
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import { ToastContainer, toast } from 'react-toastify';
-import _ from 'lodash';
-import { toDate } from '../../lib/todate';
+import find from 'lodash/find';
+import filter from 'lodash/filter'
 
 import { api } from '../../lib/hooks/auth'
 
@@ -66,7 +66,7 @@ export default function ExamIndex() {
     const handleChosen = async (value) => {
         setIsSaving(true)
         // update saved answers
-        const answer = _.find(savedAnswers, (item) => item.exam_soal_id === question.id)
+        const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id)
 
         await api.post('/api/exam/save-answer', {
             'exam_answer_sheet_id': answer.exam_answer_sheet_id,
@@ -74,7 +74,7 @@ export default function ExamIndex() {
             'answer_chosen_id': value
         }).then((res) => {
             setSavedAnswers(savedAnswers => {
-                const newSavedAnswers = _.find(savedAnswers, (item) => item.exam_soal_id === question.id)
+                const newSavedAnswers = find(savedAnswers, (item) => item.exam_soal_id === question.id)
                 newSavedAnswers.answer_chosen_id = value
 
                 return savedAnswers
@@ -85,29 +85,38 @@ export default function ExamIndex() {
     }
 
     const isChosen = (chosenId) => {
-        const chosen = _.find(savedAnswers, (item) => item.exam_soal_id === chosenId)
+        const chosen = find(savedAnswers, (item) => item.exam_soal_id === chosenId)
 
         return chosen.answer_chosen_id != null
     }
 
+    const handleWarn = useCallback(
+        (event) => {
+            setWarn(prev => prev + 1)
+            toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
+            const sound = new Audio('/assets/sounds/goes.ogg')
+            sound.play()
+        },
+        [setWarn],
+    )
+
     // prevent leave window
     useEffect(() => {
-        // on 
+        
         if (typeof global.window !== "undefined") {
-            global.window.onblur = () => {
-                // alert("Peringatan meninggalkan halaman ujian")
-                setWarn(prev => prev + 1)
-                toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
-                const sound = new Audio('/assets/sounds/goes.ogg')
-                sound.play()
+            global.window.addEventListener('blur', handleWarn)
+        }
+
+        return () => {
+            if (typeof global.window !== "undefined") {
+                global.window.removeEventListener('blur', handleWarn)
             }
         }
-    }, [warn])
-
+    }, [handleWarn])
 
     useEffect(() => {
         const getChosenAnswer = () => {
-            const chosen = _.find(savedAnswers, { exam_soal_id: question?.id })
+            const chosen = find(savedAnswers, { exam_soal_id: question?.id })
 
             setChosenAnswer(chosen)
         }
@@ -117,16 +126,20 @@ export default function ExamIndex() {
             getChosenAnswer()
         }
 
-        setInterval(() => {
+        const time = setInterval(() => {
             const time = new Date(examInfo.end_time) - new Date()
 
             setEndTime(prev => time)
         }, 1000)
+
+        return () => {
+            clearInterval(time)
+        }
     }, [])
 
     useEffect(() => {
         const getChosenAnswer = () => {
-            const chosen = _.find(savedAnswers, { exam_soal_id: question?.id })
+            const chosen = find(savedAnswers, { exam_soal_id: question?.id })
 
             setChosenAnswer(chosen)
         }
@@ -136,8 +149,6 @@ export default function ExamIndex() {
             getChosenAnswer()
         }
     }, [questionIndex, question, savedAnswers])
-
-    const router = useRouter()
 
     const dangerHTML = () => {
         return {
@@ -253,10 +264,10 @@ function ButtonResult({ sheetId }) {
                     localStorage.removeItem('exam-questions')
                     localStorage.removeItem('exam-saved-answers')
                     router.push('/exam/selesai')
-                }, 1200)
+                }, 800)
             }
         })
-            .catch(err => console.error(err)).finally(() => setIsLoading(false))
+        .catch(err => console.error(err)).finally(() => setIsLoading(false))
     }
 
     return (<>
@@ -270,8 +281,8 @@ function ButtonResult({ sheetId }) {
 function ChosenAnswer({ answers }) {
 
     // get chosen answer where answer_chosen_id is not null
-    const chosenAnswer = _.filter(answers, (answer) => answer.answer_chosen_id != null).length || 0
-    const emptyAnswer = _.filter(answers, (answer) => answer.answer_chosen_id == null).length || 0
+    const chosenAnswer = filter(answers, (answer) => answer.answer_chosen_id != null).length || 0
+    const emptyAnswer = filter(answers, (answer) => answer.answer_chosen_id == null).length || 0
 
     return (
         <>
