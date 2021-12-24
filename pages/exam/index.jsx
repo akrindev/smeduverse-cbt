@@ -6,6 +6,8 @@ import find from 'lodash/find';
 import filter from 'lodash/filter'
 
 import { api } from '../../lib/hooks/auth'
+import { getResult } from '../../lib/services/getResult'
+
 
 import useLocalStorage from '../../lib/hooks/useLocalStorage';
 
@@ -27,7 +29,7 @@ function NavHead({ dateEnd, mapel, tingkatKelas }) {
                     <div className="text-lg font-bold text-white">
                         CBT
                     </div>
-                    <div className="rounded-xl text-xs shadow-2xl px-4 py-1 bg-white font-semibold">
+                    <div className={`rounded-xl text-xs shadow-2xl px-4 py-1 font-semibold ${min <= 5 ? 'bg-red-700 text-white' : 'bg-white'}`}>
                         sisa waktu: {`${hour}j ${min}m ${sec}d`}
                     </div>
                 </div>
@@ -100,6 +102,22 @@ export default function ExamIndex() {
         [setWarn],
     )
 
+    const handleInterval = useCallback((event) => {
+        const time = new Date(examInfo.end_time) - new Date()
+
+        setEndTime(prev => time)
+    }, [setEndTime])
+
+    // listening to interval event
+    useEffect(() => {
+          if(endTime && endTime < 2000) {
+            getResult(savedAnswers && savedAnswers[0]?.exam_answer_sheet_id).then((res) => {
+                toast.success('ujian di selesaikan')
+            })
+        }
+    }, [endTime])
+    
+
     // prevent leave window
     useEffect(() => {
         
@@ -126,11 +144,7 @@ export default function ExamIndex() {
             getChosenAnswer()
         }
 
-        const time = setInterval(() => {
-            const time = new Date(examInfo.end_time) - new Date()
-
-            setEndTime(prev => time)
-        }, 1000)
+        const time = setInterval(handleInterval , 1000)
 
         return () => {
             clearInterval(time)
@@ -254,20 +268,7 @@ function ButtonResult({ sheetId }) {
 
     const handleClick = async () => {
         setIsLoading(true)
-        await api.post('/api/exam/get-result', {
-            sheet_id: sheetId
-        }).then(res => {
-            if (res.status == 200) {
-                toast.success('Lembar Ujian berhasil di kumpulkan')
-                //    remove local storaage exam and answer
-                setTimeout(() => {
-                    localStorage.removeItem('exam-questions')
-                    localStorage.removeItem('exam-saved-answers')
-                    router.push('/exam/selesai')
-                }, 800)
-            }
-        })
-        .catch(err => console.error(err)).finally(() => setIsLoading(false))
+        await getResult(savedAnswers && savedAnswers[0]?.exam_answer_sheet_id).finally(() => setIsLoading(false))
     }
 
     return (<>
