@@ -131,11 +131,15 @@ function ButtonExamPage({ token }) {
       setExamQuestions(prev => res.data.data.paket.soal);
       setSavedAnswers(prev => res.data.data.answer_sheets[0]?.saved_answer);
 
+      console.log(res)
+
       setExamInfo({
         start_time: res.data.data.start_time,
         end_time: res.data.data.end_time,
         mapel: res.data.data.paket.mapel.nama,
-        tingkat: res.data.data.paket.tingkat_kelas
+        tingkat: res.data.data.paket.tingkat_kelas,
+        sheet_id: res.data.data.answer_sheets[0]?.id,
+        warn: res.data.data.answer_sheets[0]?.warn,
       })
       // // ?then move to exam page
       router.push('/exam');

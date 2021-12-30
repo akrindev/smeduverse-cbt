@@ -29,7 +29,7 @@ function NavHead({ dateEnd, mapel, tingkatKelas }) {
                     <div className="text-lg font-bold text-white">
                         CBT
                     </div>
-                    <div className={`rounded-xl text-xs shadow-2xl px-4 py-1 font-semibold ${min <= 5 ? 'bg-red-700 text-white' : 'bg-white'}`}>
+                    <div className={`rounded-xl text-xs shadow-2xl px-4 py-1 font-semibold ${ (hour === 0 && min <= 5) ? 'bg-red-700 text-white' : 'bg-white'}`}>
                         sisa waktu: {`${hour}j ${min}m ${sec}d`}
                     </div>
                 </div>
@@ -43,7 +43,6 @@ function NavHead({ dateEnd, mapel, tingkatKelas }) {
 }
 
 export default function ExamIndex() {
-    const [warn, setWarn] = useState(0)
     const [question, setQuestion] = useState({})
     const [questions, setQuestions] = useLocalStorage('exam-questions')
     const [savedAnswers, setSavedAnswers] = useLocalStorage('exam-saved-answers')
@@ -70,7 +69,7 @@ export default function ExamIndex() {
         // update saved answers
         const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id)
 
-        await api.post('/api/exam/save-answer', {
+        await api.patch('/api/exam/save-answer', {
             'exam_answer_sheet_id': answer.exam_answer_sheet_id,
             'exam_soal_id': answer.exam_soal_id,
             'answer_chosen_id': value
@@ -94,12 +93,21 @@ export default function ExamIndex() {
 
     const handleWarn = useCallback(
         (event) => {
-            setWarn(prev => prev + 1)
+            api.patch('/api/exam/warn-exam', {
+                sheet_id: examInfo.sheet_id
+            }).then(res => {
+                setExamInfo(prev => {
+                    prev.warn = res.data?.warn || 0
+                    return prev
+                })
+
+            }).catch(err => console.error(err));
+
             toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
             const sound = new Audio('/assets/sounds/goes.ogg')
             sound.play()
         },
-        [setWarn],
+        [setExamInfo],
     )
 
     const handleInterval = useCallback((event) => {
@@ -244,7 +252,7 @@ export default function ExamIndex() {
                                             <div className="h-2 w-2 bg-gray-700 rounded"></div> <span className="text-xs text-gray-600">belum dijawab</span>
                                         </div>
                                         <div className="flex items-center mt-5 text-xs font-medium">
-                                            <div className="text-red-600 mr-1">Peringatan</div> <span className="text-xs text-red-900 font-bold"> {warn} </span>
+                                            <div className="text-red-600 mr-1">Peringatan</div> <span className="text-xs text-red-900 font-bold"> {examInfo && examInfo.warn} </span>
                                         </div>
                                     </div>
                                 </div>
@@ -264,7 +272,7 @@ export default function ExamIndex() {
 
 function ButtonResult({ sheetId }) {
     const [isLoading, setIsLoading] = useState(false)
-    const router = useRouter();
+    const [savedAnswers, setSavedAnswers] = useLocalStorage('exam-saved-answers')
 
     const handleClick = async () => {
         setIsLoading(true)
