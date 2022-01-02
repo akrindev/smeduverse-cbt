@@ -131,8 +131,6 @@ function ButtonExamPage({ token }) {
       setExamQuestions(prev => res.data.data.paket.soal);
       setSavedAnswers(prev => res.data.data.answer_sheets[0]?.saved_answer);
 
-      console.log(res)
-
       setExamInfo({
         start_time: res.data.data.start_time,
         end_time: res.data.data.end_time,
