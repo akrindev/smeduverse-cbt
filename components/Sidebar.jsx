@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link'
 import Image from 'next/image'
 
-import SidebarLinkGroup from './SidebarLinkGroup';
+import { loaderImg } from '../lib/loaderImg';
 
 export default function Sidebar({
   sidebarOpen,
@@ -75,7 +75,9 @@ export default function Sidebar({
               <path d="M10.7 18.7l1.4-1.4L7.8 13H20v-2H7.8l4.3-4.3-1.4-1.4L4 12z" />
             </svg>
           </button>
-          <Image src={`/assets/images/tutwurihandayani.png`}
+          <Image
+            loader={loaderImg}
+            src={`/assets/images/tutwurihandayani.png`}
             width={32}
             height={32}
             alt='tutwurihandayani'

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Image from 'next/image'
 import Head from 'next/head'
 import { useAuth } from '../lib/hooks/auth';
+import { loaderImg } from '../lib/loaderImg';
 
 export default function Login() {
 
@@ -34,6 +35,7 @@ export default function Login() {
                             <div className="text-center mb-3">
                                 <div className="flex items-center justify-center">
                                     <Image 
+                                        loader={loaderImg}
                                         src={`/assets/images/tutwurihandayani.png`}
                                         alt="Tutwuri Handayani"
                                         width={65}
