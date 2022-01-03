@@ -1,6 +1,6 @@
 import Head from 'next/head'
+import Image from 'next/image'
 import { useEffect, useState, useCallback } from "react"
-import { useRouter } from "next/router"
 import { ToastContainer, toast } from 'react-toastify';
 import find from 'lodash/find';
 import filter from 'lodash/filter'
@@ -296,22 +296,30 @@ function ChosenAnswer({ answers }) {
     return (
         <>
             <div>
-                <span>Udah di koreksi belom?</span>
-                <div className="divide-black divide-y my-2"></div>
-                <div className="flex items-center space-x-3">
-                    <div className="flex flex-col items-center">
+                <div className="flex items-center justify-center mb-5">
+                    <Image
+                        src={`/assets/images/yay.png`}
+                        width={160}
+                        height={160}
+                    />
+                </div>
+                <span>Pastikan untuk mengoreksi sebelum menyelesaikan ujian 🎉</span>
+                <div className="divide-black my-5"></div>
+                <div className="flex items-center space-x-3 w-full">
+                    <div className="flex flex-col items-center w-full">
                         <strong>Dijawab</strong>
                         <span>{chosenAnswer}</span>
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center w-full">
                         <strong>Kosong</strong>
                         <span>{emptyAnswer}</span>
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center w-full">
                         <strong>Total</strong>
                         <span>{answers.length}</span>
                     </div>
                 </div>
+                <div className="divide-black my-5"></div>
             </div>
         </>
     )

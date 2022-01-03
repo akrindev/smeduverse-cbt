@@ -137,7 +137,7 @@ function ButtonExamPage({ token }) {
         mapel: res.data.data.paket.mapel.nama,
         tingkat: res.data.data.paket.tingkat_kelas,
         sheet_id: res.data.data.answer_sheets[0]?.id,
-        warn: res.data.data.answer_sheets[0]?.warn,
+        warn: res.data.data.answer_sheets[0]?.warn ?? 0,
       })
       // // ?then move to exam page
       router.push('/exam');

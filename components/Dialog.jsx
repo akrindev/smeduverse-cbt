@@ -44,7 +44,7 @@ export default function Modal({ isOpen, setIsOpen, title, description, action })
               <div className="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded">
                 <Dialog.Title
                   as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900"
+                  className="text-xl font-bold leading-6 text-gray-900 text-center"
                 >
                   {title}
                 </Dialog.Title>
@@ -54,7 +54,7 @@ export default function Modal({ isOpen, setIsOpen, title, description, action })
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center space-x-2">
+                <div className="mt-4 flex items-center justify-end space-x-2">
                   {action}
                   <button onClick={() => setIsOpen(false)} className="px-3 py-1 bg-gray-200 rounded border border-gray-300">tutup</button>
                 </div>

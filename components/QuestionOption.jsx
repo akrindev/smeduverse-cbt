@@ -42,17 +42,17 @@ export default function QuestionOption({ data: options, chosen, onChosen, isSavi
               >
                 {({ active, checked }) => (
                   <>
-                    <div className="flex items-center space-x-2 w-full">
+                    <div className="flex items-start space-x-2 w-full">
                         {checked ? (
-                        <div className="flex text-white justify-start">
+                        <div className="flex items-start text-white justify-start">
                           <CheckIcon className="w-4 h-4" />
                         </div>
                       ) : (
-                        <div className="flex justify-start">
+                        <div className="flex items-start justify-start">
                           <span className="w-4 h-4 bg-gray-200 rounded-full"></span>
                         </div>
                       )}
-                      <div className="flex items-center">
+                      <div className="">
                         <div className="text-sm">
                           <RadioGroup.Label
                             as="p"

@@ -1,8 +1,10 @@
+import Head from 'next/head'
 import ExamBegin from "../../components/Layouts/ExamBegin"
 // import lottie
 import Lottie from "react-lottie";
 import data from "../../assets/successful.json"
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 function Header() {
     return (
@@ -15,6 +17,16 @@ function Header() {
 export default function Selesai() {
     const router = useRouter()
 
+    const handleClick = () => {
+        router.push("/dashboard")
+    }
+
+    useEffect(() => {
+        const sound = new Audio(`/assets/sounds/eventually.ogg`)
+        
+        sound.play()
+    }, [])
+
     const defaultOptions = {
         loop: true,
         autoplay: true,
@@ -26,6 +38,9 @@ export default function Selesai() {
 
     return (
         <>
+            <Head>
+                <title>Yay, Ujian Selesai !!</title>
+            </Head>
             <ExamBegin header={<Header />}>
                 <div className="relative flex items-center justify-center w-full">
                     <div className="bg-white rounded-md shadow w-full max-w-md p-5">
@@ -37,7 +52,7 @@ export default function Selesai() {
                             <p className="font-poppins mt-3">Terima kasih telah menyelesaikan ujian</p>
 
                             <div className="mt-5">
-                                <button onClick={() => router.push('/dashboard')} className="bg-gradient-to-r from-lightBlue-500 to-lightBlue-400 w-full py-3 px-6 rounded-md shadow text-white font-poppins">
+                                <button onClick={handleClick} className="bg-gradient-to-r from-lightBlue-500 to-lightBlue-400 w-full py-2 px-6 rounded-md shadow text-white font-poppins">
                                     Kembali ke dashboard
                                 </button>
                             </div>

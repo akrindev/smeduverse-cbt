@@ -29,11 +29,11 @@ export default function DescriptionModalExam({ data }) {
           <div className="font-normal text-gray-800">{data.paket.waktu} menit</div>
         </div>
         <div className="mt-3">
-          <div className="font-bold text-base">Pada</div>
+          <div className="font-bold text-base">Mulai</div>
           <div className="font-normal text-gray-800">{toDate(data.start_time)}</div>
         </div>
         <div className="mt-3">
-          <div className="font-bold text-base">Sampai</div>
+          <div className="font-bold text-base">Selesai</div>
           <div className="font-normal text-gray-800">{toDate(data.end_time)}</div>
         </div>
       </div>
