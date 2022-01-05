@@ -7,7 +7,7 @@ import filter from 'lodash/filter'
 
 import { api } from '../../lib/hooks/auth'
 import { getResult } from '../../lib/services/getResult'
-
+import { loaderImg } from '../../lib/loaderImg';
 
 import useLocalStorage from '../../lib/hooks/useLocalStorage';
 
@@ -298,6 +298,7 @@ function ChosenAnswer({ answers }) {
             <div>
                 <div className="flex items-center justify-center mb-5">
                     <Image
+                        loader={loaderImg}
                         src={`/assets/images/yay.png`}
                         width={160}
                         height={160}
