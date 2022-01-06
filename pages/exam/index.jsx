@@ -85,10 +85,35 @@ export default function ExamIndex() {
         })
     }
 
+    const handleRagu = async (value) => {
+        setIsSaving(true)
+        // update saved answers
+        const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id)
+
+        await api.patch('/api/exam/ragu-answer', {
+            'exam_answer_sheet_id': answer.exam_answer_sheet_id,
+            'exam_soal_id': answer.exam_soal_id,
+            'ragu': answer.ragu === 1 ? 0 : 1
+        }).then((res) => {
+            setSavedAnswers(savedAnswers => {
+                const newSavedAnswers = find(savedAnswers, (item) => item.exam_soal_id === question.id)
+                newSavedAnswers.ragu = answer.ragu === 1 ? 0 : 1
+
+                return savedAnswers
+            })
+        }).catch((err) => console.log(err)).finally(() => {
+            setIsSaving(false)
+        })
+    }
+
     const isChosen = (chosenId) => {
         const chosen = find(savedAnswers, (item) => item.exam_soal_id === chosenId)
 
         return chosen.answer_chosen_id != null
+    }
+
+    const isRagu = (chosenId) => {
+        return find(savedAnswers, (item) => item.exam_soal_id === chosenId)?.ragu == 1
     }
 
     const handleWarn = useCallback(
@@ -122,7 +147,11 @@ export default function ExamIndex() {
             getResult(savedAnswers && savedAnswers[0]?.exam_answer_sheet_id).then((res) => {
                 toast.success('ujian di selesaikan')
             })
-        }
+          }
+
+        const time = setInterval(handleInterval , 1000)
+
+        return () => clearInterval(time)
     }, [endTime])
     
 
@@ -152,11 +181,6 @@ export default function ExamIndex() {
             getChosenAnswer()
         }
 
-        const time = setInterval(handleInterval , 1000)
-
-        return () => {
-            clearInterval(time)
-        }
     }, [])
 
     useEffect(() => {
@@ -202,12 +226,12 @@ export default function ExamIndex() {
                                     <QuestionOption data={question.choices} chosen={chosenAnswer} onChosen={handleChosen} isSaving={isSaving} />
                                 </div>
 
-                                <div className="p-3 pb-5">
+                                <div className="p-3 pb-5" key={question.id}>
                                     <div className="flex items-center justify-between">
                                         <button onClick={() => setQuestionIndex(prev => prev - 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50" disabled={questionIndex == 0}>
                                             Soal Sebelumnya
                                         </button>
-                                        <button className="px-3 py-2 bg-yellow-500 border border-yellow-600 text-gray-100 text-xs rounded-md">
+                                        <button className={`px-3 py-2 ${questions && isRagu(question.id) ? 'bg-yellow-500 text-gray-100' : 'bg-white text-yellow-500'} border border-yellow-600  text-xs rounded-md`} onClick={handleRagu}>
                                             Ragu-ragu
                                         </button>
                                         <button onClick={() => setQuestionIndex(prev => prev + 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50" disabled={questions && questionIndex == questions.length - 1}>
@@ -227,6 +251,7 @@ export default function ExamIndex() {
                                     {questions && questions.map((question, index) => (
                                         <NavButirSoal
                                             isChosen={isChosen(question.id)}
+                                            isRagu={isRagu(question.id)}
                                             onClick={() => setQuestionIndex(index)}
                                             key={question.id}
                                             number={index + 1} />)
