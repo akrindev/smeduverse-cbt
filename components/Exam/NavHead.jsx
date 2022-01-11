@@ -7,15 +7,17 @@ export default function NavHead({ dateEnd, mapel, tingkatKelas }) {
     const [fullname, setFullname] = useState('');
     const [rombel, setRombel] = useState('');
     const [nisn, setNisn] = useState(null)
-    const { user } = useAuth();
+    const [matPel, setMatPel] = useState(mapel)
+    const { user } = useAuth({ middleware: 'auth'});
 
     useEffect(() => {
-        if (user) {
+        if(user) {
             setFullname(user.data.student.fullname)
-            setRombel(user.data.student.rombel_aktif[0]?.nama)
             setNisn(user.data.student.nipd)
+            setRombel(user.data.student.rombel_aktif[0]?.nama)
+            setMatPel(mapel)
         }
-    }, [])
+    })
 
     let hour = Math.floor((dateEnd / 3600000) % 24); // time diff's hours (modulated to 24)
     let min = Math.floor((dateEnd / 60000) % 60); // time diff's minutes (modulated to 60)
@@ -45,10 +47,12 @@ export default function NavHead({ dateEnd, mapel, tingkatKelas }) {
                 </div>
                 <div className="flex flex-col bg-white px-3 py-2 mt-3 -mb-6 rounded shadow">
                     <h2 className="text-lg font-bold">{fullname}</h2>
-                    <p className="text-xs text-gray-600">{nisn} - {rombel}</p>
+                    <div className="flex items-center text-sm text-gray-600">
+                        {nisn} / {rombel}
+                    </div>
                     <div className="flex items-center">
-                        <span className='mr-2'>{mapel}</span>
-                        <span className='text-sm text-gray-700'>Kelas {tingkatKelas}</span>
+                        <span className='text-sm text-gray-500 mr-2'>{matPel}</span> 
+                        <span className='text-sm text-gray-500'> kelas {tingkatKelas}</span>
                     </div>
                 </div>
             </div>

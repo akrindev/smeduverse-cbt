@@ -156,20 +156,6 @@ export default function ExamIndex() {
             setQuestion(questions[questionIndex])
             getChosenAnswer()
         }
-
-    }, [])
-
-    useEffect(() => {
-        const getChosenAnswer = () => {
-            const chosen = find(savedAnswers, { exam_soal_id: question?.id })
-
-            setChosenAnswer(chosen)
-        }
-
-        if (questions && questions.length > 0) {
-            setQuestion(questions[questionIndex])
-            getChosenAnswer()
-        }
     }, [questionIndex, question, savedAnswers])
 
     const dangerHTML = () => {
@@ -194,7 +180,7 @@ export default function ExamIndex() {
                                     Soal {questionIndex + 1} / {questions && questions.length}
                                 </div>
                                 {/* pertanyaan */}
-                                <div className="px-4 py-3 font-nunito font-normal text-base" dangerouslySetInnerHTML={dangerHTML()} />
+                                <div className="px-4 py-3 font-roboto font-normal text-sm" dangerouslySetInnerHTML={dangerHTML()} />
 
                                 <div className="border-b border-gray-100"></div>
 

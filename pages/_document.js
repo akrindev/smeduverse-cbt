@@ -12,8 +12,8 @@ class MyDocument extends Document {
             <Html>
                 <Head>
                     <link rel="preconnect" href="https://fonts.googleapis.com" />
-                    <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-                    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+                    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Roboto:wght@300;400&display=swap" rel="stylesheet" />
                     <link rel="shortcut icon" href="/assets/images/tutwurihandayani.png" type="image/png" />
                     <link rel="stylesheet" href="/assets/ckstyles.css" />
                 </Head>
