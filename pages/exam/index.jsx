@@ -14,33 +14,9 @@ import useLocalStorage from '../../lib/hooks/useLocalStorage';
 import ExamBegin from "../../components/Layouts/ExamBegin"
 import QuestionOption from "../../components/QuestionOption"
 import NavButirSoal from '../../components/Exam/NavButirSoal';
+import NavHead from '../../components/Exam/NavHead';
 import Modal from '../../components/Dialog'
 
-function NavHead({ dateEnd, mapel, tingkatKelas }) {
-
-    let hour = Math.floor((dateEnd / 3600000) % 24); // time diff's hours (modulated to 24)
-    let min = Math.floor((dateEnd / 60000) % 60); // time diff's minutes (modulated to 60)
-    let sec = Math.floor((dateEnd / 1000) % 60); // time diff's seconds (modulated to 60)
-
-    return (
-        <>
-            <div className="flex flex-col justify-between hover:cursor-pointer max-w-7xl mx-auto">
-                <div className='flex items-center justify-between'>
-                    <div className="text-lg font-bold text-white">
-                        CBT
-                    </div>
-                    <div className={`rounded-xl text-xs shadow-2xl px-4 py-1 font-semibold ${ (hour === 0 && min <= 5) ? 'bg-red-700 text-white' : 'bg-white'}`}>
-                        sisa waktu: {`${hour}j ${min}m ${sec}d`}
-                    </div>
-                </div>
-                <div className="flex flex-col bg-white px-3 py-2 mt-3 -mb-6 rounded shadow">
-                    <h2 className="text-lg">{mapel}</h2>
-                    <div className='text-sm text-gray-500'>Kelas {tingkatKelas}</div>
-                </div>
-            </div>
-        </>
-    )
-}
 
 export default function ExamIndex() {
     const [question, setQuestion] = useState({})
@@ -214,8 +190,8 @@ export default function ExamIndex() {
                         <div className="col-span-12 lg:col-span-8">
                             <div className="bg-white rounded shadow">
                                 {/* header info */}
-                                <div className="px-5 py-3 border-b border-gray-200 font-nunito font-semibold text-xl">
-                                    Pertanyaan {questionIndex + 1}
+                                <div className="p-3 border-b border-gray-200 font-nunito font-semibold text-lg">
+                                    Soal {questionIndex + 1} / {questions && questions.length}
                                 </div>
                                 {/* pertanyaan */}
                                 <div className="px-4 py-3 font-nunito font-normal text-base" dangerouslySetInnerHTML={dangerHTML()} />
