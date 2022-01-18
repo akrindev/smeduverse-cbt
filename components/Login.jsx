@@ -62,12 +62,12 @@ export default function Login() {
                                     className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
                                     htmlFor="grid-password"
                                 >
-                                    NIS / NISN
+                                    NIS
                                 </label>
                                 <input
                                     type="text"
                                     className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow focus:bg-blue-50 w-full"
-                                    placeholder="NIS / NISN"
+                                    placeholder="NIS"
                                     autoFocus
                                     autoComplete="username"
                                     value={email}

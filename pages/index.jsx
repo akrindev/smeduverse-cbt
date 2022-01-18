@@ -1,4 +1,3 @@
-import Head from 'next/head'
 import Auth  from '../components/Layouts/Auth'
 import Login from '../components/Login'
 

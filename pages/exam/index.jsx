@@ -190,14 +190,14 @@ export default function ExamIndex() {
 
                                 <div className="p-3 pb-5" key={question.id}>
                                     <div className="flex items-center justify-between">
-                                        <button onClick={() => setQuestionIndex(prev => prev - 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50" disabled={questionIndex == 0}>
-                                            Soal Sebelumnya
+                                        <button onClick={() => setQuestionIndex(prev => prev - 1)} className="p-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50" disabled={questionIndex == 0}>
+                                            Soal sebelumnya
                                         </button>
                                         <button className={`px-3 py-2 ${questions && isRagu(question.id) ? 'bg-yellow-500 text-gray-100' : 'bg-white text-yellow-500'} border border-yellow-600  text-xs rounded-md`} onClick={handleRagu}>
                                             Ragu-ragu
                                         </button>
                                         <button onClick={() => setQuestionIndex(prev => prev + 1)} className="px-3 py-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50" disabled={questions && questionIndex == questions.length - 1}>
-                                            Soal Berikutnya
+                                            Soal berikutnya
                                         </button>
                                     </div>
                                 </div>
