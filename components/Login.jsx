@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Head from 'next/head'
 import { useAuth } from '../lib/hooks/auth';
 import { loaderImg } from '../lib/loaderImg';
+import { ThreeDots } from './Loading';
 
 export default function Login() {
 
@@ -40,6 +41,7 @@ export default function Login() {
                                         alt="Tutwuri Handayani"
                                         width={65}
                                         height={65}
+                                        unoptimized={true}
                                     />
                                 </div>
                                 <h6 className="text-blue-700 text-2xl font-poppins font-bold">
@@ -96,19 +98,20 @@ export default function Login() {
 
                             <div className="text-center mt-6">
                                 <button
-                                className="bg-lightBlue-600 text-white hover:bg-lightBlue-800 text-sm font-bold uppercase px-6 py-3 rounded-xl shadow-lg hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150 disabled:opacity-75"
-                                type="submit"
+                                    className={`
+                                        flex items-center justify-center
+                                        bg-sky-600 text-white hover:bg-sky-700 
+                                        text-sm font-semibold px-6 py-3 
+                                        rounded-md shadow-lg hover:shadow-lg outline-none focus:outline-none 
+                                        mr-1 mb-1 w-full ease-linear transition-all duration-150 
+                                        disabled:opacity-75`}
+                                        type="submit"
+                                        disabled={status === 'loading'}
                                 >
-                                    Masuk
+                                    {status === 'loading' ? (<ThreeDots />)  : 'Masuk'}
                                 </button>
                             </div>
                             </form>
-                        </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap mt-6 relative">
-                        <div className="w-full text-center">
-                            <strong className="text-white font-bol">Smeducative</strong> <span className="text-sm text-white font-thin">is part of SMK Diponegoro Karanganyar</span>
                         </div>
                     </div>
 
