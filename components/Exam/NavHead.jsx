@@ -7,7 +7,7 @@ export default function NavHead({ dateEnd, mapel, tingkatKelas }) {
     const [fullname, setFullname] = useState('');
     const [rombel, setRombel] = useState('');
     const [nisn, setNisn] = useState(null)
-    const [matPel, setMatPel] = useState(mapel)
+    const [matPel, setMatPel] = useState(null)
     const { user } = useAuth({ middleware: 'auth'});
 
     useEffect(() => {

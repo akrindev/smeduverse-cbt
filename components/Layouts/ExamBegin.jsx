@@ -13,7 +13,7 @@ function Header({ body }) {
 export default function ExamBegin({ header, children }) {
     return (
         <>
-            <div className="relative bg-blueGray-100 min-h-screen pb-10">
+            <div className="relative bg-slate-100 min-h-screen pb-10">
 
                 {header && <Header body={header}/>}
                 

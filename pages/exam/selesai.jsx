@@ -43,7 +43,7 @@ export default function Selesai() {
             </Head>
             <ExamBegin header={<Header />}>
                 <div className="relative flex items-center justify-center w-full">
-                    <div className="bg-white rounded-md shadow w-full max-w-md p-5">
+                    <div className="bg-white rounded-md shadow-md w-full max-w-md p-5">
                         <Lottie options={defaultOptions} height={200} width={200} />
 
                         <div className="flex flex-col items-center justify-center mt-5">
@@ -52,7 +52,7 @@ export default function Selesai() {
                             <p className="font-poppins mt-3">Terima kasih telah menyelesaikan ujian</p>
 
                             <div className="mt-5">
-                                <button onClick={handleClick} className="bg-gradient-to-r from-lightBlue-500 to-lightBlue-400 w-full py-2 px-6 rounded-md shadow text-white font-poppins">
+                                <button onClick={handleClick} className="bg-gradient-to-r from-sky-600 via-sky-500 to-sky-500 w-full py-2 px-6 rounded-md shadow text-white font-poppins">
                                     Kembali ke dashboard
                                 </button>
                             </div>

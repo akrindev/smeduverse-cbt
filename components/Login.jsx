@@ -61,14 +61,14 @@ export default function Login() {
                             >
                             <div className="relative w-full mb-3">
                                 <label
-                                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                                    className="block uppercase text-zinc-600 text-xs font-bold mb-2"
                                     htmlFor="grid-password"
                                 >
                                     NIS
                                 </label>
                                 <input
                                     type="text"
-                                    className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow focus:bg-blue-50 w-full"
+                                    className="px-3 py-3 placeholder-zinc-300 text-zinc-900 bg-zinc-100 rounded text-sm shadow focus:bg-blue-50 w-full"
                                     placeholder="NIS"
                                     autoFocus
                                     autoComplete="username"
@@ -80,14 +80,14 @@ export default function Login() {
 
                             <div className="relative w-full mb-3">
                                 <label
-                                    className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                                    className="block uppercase text-zinc-600 text-xs font-bold mb-2"
                                     htmlFor="grid-password"
                                 >
                                 Password
                                 </label>
                                 <input
                                     type="password"
-                                    className="px-3 py-3 placeholder-blueGray-300 text-blueGray-900 bg-blueGray-100 rounded text-sm shadow focus:bg-blue-50 w-full"
+                                    className="px-3 py-3 placeholder-zinc-300 text-zinc-900 bg-zinc-100 rounded text-sm shadow focus:bg-blue-50 w-full"
                                     placeholder="Password"
                                     autoComplete="current-password"
                                     value={password}

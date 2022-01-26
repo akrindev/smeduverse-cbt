@@ -27,7 +27,7 @@ export default function ExamSchedule() {
   
 
   return (
-    <div className="col-span-12 bg-white shadow-lg rounded-sm border border-gray-200">
+    <div className="col-span-12 bg-white shadow-lg rounded-sm">
       <header className="px-5 py-4 border-b border-gray-100">
         <h2 className="font-semibold text-gray-800">Jadwal Ujian</h2>
       </header>
@@ -38,7 +38,7 @@ export default function ExamSchedule() {
         <div className="px-5 py-4">
           <p className="text-gray-800">Belum ada jadwal ujian</p>
         </div>
-      )}  
+      )}
     </div>
   );
 }
@@ -126,7 +126,7 @@ function ButtonExamPage({ token }) {
     // router.push('/exam')
     setIsLoading(true);
     
-    api.get(`/api/exam/paket/${token}`).then(res => {
+    api.post(`/api/exam/paket/${token}`).then(res => {
       // set exam to local storage
       setExamQuestions(prev => res.data.data.paket.soal);
       setSavedAnswers(prev => res.data.data.answer_sheets[0]?.saved_answer);

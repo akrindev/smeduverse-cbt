@@ -3,7 +3,7 @@ export default function WelcomeBanner({ user }) {
   if(!user) return null;
   
   return (
-    <div className="relative bg-indigo-200 p-4 sm:p-6 rounded-sm overflow-hidden mb-8">
+    <div className="relative bg-indigo-200 py-4 px-4 md:px-10 sm:py-6 rounded-sm overflow-hidden mb-8">
 
       {/* Background illustration */}
       <div className="absolute right-0 top-0 -mt-4 mr-16 pointer-events-none hidden xl:block" aria-hidden="true">
@@ -49,7 +49,7 @@ export default function WelcomeBanner({ user }) {
 
       {/* Content */}
       <div className="relative">
-        <h1 className="text-2xl md:text-3xl text-gray-800 font-bold mb-1">Selamat datang, {user.student.fullname} 👋</h1>
+        <h1 className="text-xl md:text-2xl text-gray-800 font-semibold mb-1">Selamat datang, {user.student.fullname} 👋</h1>
         <p>{user.student.rombel_aktif[0]?.nama ?? '~'}</p>
       </div>
 

@@ -80,7 +80,8 @@ export default function Sidebar({
             src={`/assets/images/tutwurihandayani.png`}
             width={32}
             height={32}
-            alt='tutwurihandayani'
+            alt='tutwuri handayani'
+            unoptimized={true}
           />
         </div>
 
