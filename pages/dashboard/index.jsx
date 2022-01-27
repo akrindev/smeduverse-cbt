@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Head from 'next/head'
 
 import Sidebar from "../../components/Sidebar";
@@ -6,13 +6,30 @@ import Header from "../../components/Header";
 
 import WelcomeBanner from "../../components/WelcomeBanner";
 import ExamSchedule from "../../components/Dashboard/ExamSchedule";
+import ExamPlan from "../../components/Dashboard/ExamPlan";
 
-import { useAuth } from '../../lib/hooks/auth'
+import { api, useAuth } from '../../lib/hooks/auth'
 
 export default function Dashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    
+    const [plans, setPlans] = useState([])
+    const [selectedPlan, setSelectedPlan] = useState(0)
+
     const { user } = useAuth({ middleware: 'auth' })
+
+    useEffect(() => {
+        const getPlanList = async () => {
+            await api.get('/api/exam/exam-plan-list').then((res) => {
+                setPlans(res.data)
+            }).catch(err => console.log(err))
+        }
+
+        getPlanList()
+    }, [])
+
+    const handleSelectedPlan = (id) => {
+        setSelectedPlan(id)
+    }
 
     return (
         <>
@@ -31,16 +48,16 @@ export default function Dashboard() {
                         {/*  Site header */}
                         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} user={user.data} />
 
-                        <main className="bg-slate-100 pb-14">
-                            <div className="w-full max-w-9xl mx-auto">
+                        <main className="bg-slate-100 pb-14 min-h-screen">
+                            <div className="w-full max-w-9xl mx-auto pb-16">
                                 {/* Welcome banner */}
                                 <WelcomeBanner user={user.data} />
 
-                                {/* Cards */}
-                                <div className="grid grid-cols-12 gap-6 px-0 sm:px-6 lg:px-8">
-                                    {/* Exam schedule */}
-                                    <ExamSchedule />
-                                </div>
+                                {/* Exam schedule */}
+                                {(selectedPlan == 0 && plans)
+                                    ? <ExamPlan plans={plans} onSelectedPlan={handleSelectedPlan}/>
+                                    : <ExamSchedule planId={selectedPlan} onBack={() => setSelectedPlan(0)}/>
+                                }
                             </div>
                         </main>
                     </>) : (<>
