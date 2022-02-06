@@ -16,6 +16,7 @@ module.exports = {
       '/dashboard': { page: '/dashboard' },
       '/exam': { page: '/exam' },
       '/exam/selesai': { page: '/exam/selesai' },
+      '/ujian-susulan': { page: '/ujian-susulan' },
     }
   },
 }

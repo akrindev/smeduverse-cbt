@@ -289,6 +289,7 @@ function ChosenAnswer({ answers }) {
                         src={`/assets/images/yay.png`}
                         width={160}
                         height={160}
+                        unoptimized
                     />
                 </div>
                 <span>Pastikan untuk mengoreksi sebelum menyelesaikan ujian 🎉</span>
