@@ -102,11 +102,11 @@ export default function ExamIndex() {
                     return prev
                 })
 
+                toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
+                const sound = new Audio('/assets/sounds/goes.ogg')
+                sound.play()
             }).catch(err => console.error(err));
 
-            toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
-            const sound = new Audio('/assets/sounds/goes.ogg')
-            sound.play()
         },
         [setExamInfo],
     )
