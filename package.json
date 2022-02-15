@@ -28,5 +28,13 @@
   "devDependencies": {
     "eslint": "7",
     "eslint-config-next": "12.0.4"
-  }
+  },
+  "browserslist": [
+    "> 0.1%",
+    "chrome >= 49",
+    "samsung >= 3.0",
+    "firefox >= 49",
+    "android >= 4",
+    "and_uc >= 9.9"
+  ]
 }
