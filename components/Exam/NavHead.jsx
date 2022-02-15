@@ -5,6 +5,8 @@ import { useAuth } from '../../lib/hooks/auth';
 
 export default function NavHead({ dateEnd, mapel, tingkatKelas }) {
     const [fullname, setFullname] = useState('');
+    const [tingkat, setTingkat] = useState(0);
+    const [ended, setEnded] = useState(0);
     const [rombel, setRombel] = useState('');
     const [nisn, setNisn] = useState(null)
     const [matPel, setMatPel] = useState(null)
@@ -16,12 +18,14 @@ export default function NavHead({ dateEnd, mapel, tingkatKelas }) {
             setNisn(user.data.student.nipd)
             setRombel(user.data.student.rombel_aktif[0]?.nama)
             setMatPel(mapel)
+            setTingkat(tingkatKelas)
+            setEnded(dateEnd)
         }
     })
 
-    let hour = Math.floor((dateEnd / 3600000) % 24); // time diff's hours (modulated to 24)
-    let min = Math.floor((dateEnd / 60000) % 60); // time diff's minutes (modulated to 60)
-    let sec = Math.floor((dateEnd / 1000) % 60); // time diff's seconds (modulated to 60)
+    let hour = Math.floor((ended / 3600000) % 24); // time diff's hours (modulated to 24)
+    let min = Math.floor((ended / 60000) % 60); // time diff's minutes (modulated to 60)
+    let sec = Math.floor((ended / 1000) % 60); // time diff's seconds (modulated to 60)
 
     return (
         <>
@@ -52,7 +56,7 @@ export default function NavHead({ dateEnd, mapel, tingkatKelas }) {
                     </div>
                     <div className="flex items-center">
                         <span className='text-sm text-gray-500 mr-2'>{matPel}</span> 
-                        <span className='text-sm text-gray-500'> kelas {tingkatKelas}</span>
+                        <span className='text-sm text-gray-500'> kelas {tingkat}</span>
                     </div>
                 </div>
             </div>

@@ -8,6 +8,7 @@ import filter from 'lodash/filter'
 import { api } from '../../lib/hooks/auth'
 import { getResult } from '../../lib/services/getResult'
 import { loaderImg } from '../../lib/loaderImg';
+import { ThreeDots } from '../../components/Loading'
 
 import useLocalStorage from '../../lib/hooks/useLocalStorage';
 
@@ -45,20 +46,28 @@ export default function ExamIndex() {
         // update saved answers
         const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id)
 
-        await api.patch('/api/exam/save-answer', {
-            'exam_answer_sheet_id': answer.exam_answer_sheet_id,
-            'exam_soal_id': answer.exam_soal_id,
-            'answer_chosen_id': value
-        }).then((res) => {
-            setSavedAnswers(savedAnswers => {
-                const newSavedAnswers = find(savedAnswers, (item) => item.exam_soal_id === question.id)
-                newSavedAnswers.answer_chosen_id = value
-
-                return savedAnswers
+        try {
+            await api.patch('/api/exam/save-answer', {
+                'exam_answer_sheet_id': answer.exam_answer_sheet_id,
+                'exam_soal_id': answer.exam_soal_id,
+                'answer_chosen_id': value
+            }).then((res) => {
+                if(res.status === 200) {
+                    setSavedAnswers(savedAnswers => {
+                        const newSavedAnswers = find(savedAnswers, (item) => item.exam_soal_id === question.id)
+                        newSavedAnswers.answer_chosen_id = value
+                        return savedAnswers
+                    })
+                }
+            }).catch((err) => {
+                toast.error('jawaban gagal disimpan, ulangi kembali')
+            }).finally(() => {
+                setIsSaving(false)
             })
-        }).catch((err) => console.log(err)).finally(() => {
-            setIsSaving(false)
-        })
+        } catch (error) {
+            console.log('catch', error)
+        }
+
     }
 
     const handleRagu = async (value) => {
@@ -71,12 +80,13 @@ export default function ExamIndex() {
             'exam_soal_id': answer.exam_soal_id,
             'ragu': answer.ragu === 1 ? 0 : 1
         }).then((res) => {
-            setSavedAnswers(savedAnswers => {
-                const newSavedAnswers = find(savedAnswers, (item) => item.exam_soal_id === question.id)
-                newSavedAnswers.ragu = answer.ragu === 1 ? 0 : 1
-
-                return savedAnswers
-            })
+            if(res.status === 200) {
+                setSavedAnswers(savedAnswers => {
+                    const newSavedAnswers = find(savedAnswers, (item) => item.exam_soal_id === question.id)
+                    newSavedAnswers.ragu = answer.ragu === 1 ? 0 : 1
+                    return savedAnswers
+                })
+            }
         }).catch((err) => console.log(err)).finally(() => {
             setIsSaving(false)
         })
@@ -93,20 +103,20 @@ export default function ExamIndex() {
     }
 
     const handleWarn = useCallback(
-        (event) => {
-            api.patch('/api/exam/warn-exam', {
+        async (event) => {
+            await api.patch('/api/exam/warn-exam', {
                 sheet_id: examInfo.sheet_id
             }).then(res => {
                 setExamInfo(prev => {
-                    prev.warn = res.data?.warn || 0
+                    const newPrev = prev
+                    newPrev.warn = res.data?.warn || 0
                     return prev
                 })
-
-                toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
-                const sound = new Audio('/assets/sounds/goes.ogg')
-                sound.play()
             }).catch(err => console.error(err));
-
+            
+            toast.error('Kamu meninggalkan halaman ujian, peringatan ditambahkan')
+            const sound = new Audio('/assets/sounds/goes.ogg')
+            sound.play()
         },
         [setExamInfo],
     )
@@ -176,8 +186,13 @@ export default function ExamIndex() {
                         <div className="col-span-12 lg:col-span-8">
                             <div className="bg-white rounded shadow">
                                 {/* header info */}
-                                <div className="p-3 border-b border-gray-200 font-nunito font-semibold text-lg">
-                                    Soal {questionIndex + 1} / {questions && questions.length}
+                                <div className="flex items-center p-3 border-b border-gray-200 font-nunito font-semibold text-lg">
+                                    <span className='mr-auto py-1'>
+                                        Soal {questionIndex + 1} / {questions && questions.length}
+                                    </span>
+                                    <span>
+                                        {isSaving && (<div className='text-xs rounded-lg text-green-800 bg-green-100 flex items-center justify-center space-x-2 py-1 px-3'><ThreeDots /> <span>menyimpan jawaban</span></div>)}
+                                    </span>
                                 </div>
                                 {/* pertanyaan */}
                                 <div className="px-4 py-3 font-roboto font-normal text-sm" dangerouslySetInnerHTML={dangerHTML()} />
