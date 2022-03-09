@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import useLocalStorage from '../../lib/hooks/useLocalStorage';
+import { toast } from 'react-toastify';
 
 import { api } from '../../lib/hooks/auth'
 import { ThreeDots } from '../Loading'
@@ -31,7 +32,13 @@ export default function ButtonExamPage({ token }) {
       })
       // // ?then move to exam page
       router.push('/exam');
-    }).catch(err => console.log(err)).finally(() => setIsLoading(false));
+    }).catch((err) => {
+      console.log(err.response?.data?.message)
+      toast.error(err.response?.data?.message, {
+        hideProgressBar: true,
+        position: "top-left"
+      })
+    }).finally(() => setIsLoading(false));
   }
 
   return (

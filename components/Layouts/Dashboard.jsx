@@ -28,8 +28,8 @@ export default function Dashboard({ children, title }) {
                         {/*  Site header */}
                         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} user={user.data} />
 
-                        <main className="bg-slate-100 pb-14 min-h-screen">
-                            <div className="w-full max-w-9xl mx-auto pb-16">
+                        <main className="bg-slate-100 pb-14">
+                            <div className="w-full max-w-9xl mx-auto pb-16 min-h-screen">
                                 {/* children */}
                                 {children}
                             </div>

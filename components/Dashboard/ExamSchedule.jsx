@@ -1,5 +1,8 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react';
+
+import { ToastContainer,toast } from 'react-toastify'
+
 import { api } from '../../lib/hooks/auth'
 import { ThreeDots } from '../Loading'
 
@@ -19,7 +22,12 @@ export default function ExamSchedule({ planId, onBack }) {
 
       await api.get(`/api/exam/schedule-list/${planId}`).then((res) => {
         setSchedules(res.data?.ujian_schedule);
-      }).catch((err) => console.log(err))
+      }).catch((err) => {
+          toast.error(err.response?.data?.message, {
+            hideProgressBar: true,
+            position: "top-left"
+          })
+      })
       .finally(() => setIsloading('idle'))
     }
 
@@ -49,6 +57,7 @@ export default function ExamSchedule({ planId, onBack }) {
           }
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }
