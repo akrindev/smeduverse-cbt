@@ -118,14 +118,14 @@ export default function ExamIndex() {
             const sound = new Audio('/assets/sounds/goes.ogg')
             sound.play()
         },
-        [setExamInfo],
+        [setExamInfo, examInfo],
     )
 
     const handleInterval = useCallback((event) => {
         const time = new Date(examInfo.end_time) - new Date()
 
         setEndTime(prev => time)
-    }, [setEndTime])
+    }, [setEndTime, examInfo])
 
     // listening to interval event
     useEffect(() => {
@@ -138,7 +138,7 @@ export default function ExamIndex() {
         const time = setInterval(handleInterval , 1000)
 
         return () => clearInterval(time)
-    }, [endTime])
+    }, [endTime, savedAnswers, handleInterval])
     
 
     // prevent leave window
@@ -166,7 +166,7 @@ export default function ExamIndex() {
             setQuestion(questions[questionIndex])
             getChosenAnswer()
         }
-    }, [questionIndex, question, savedAnswers])
+    }, [questionIndex, question, questions, savedAnswers])
 
     const dangerHTML = () => {
         return {
@@ -195,7 +195,7 @@ export default function ExamIndex() {
                                     </span>
                                 </div>
                                 {/* pertanyaan */}
-                                <div className="px-4 py-3 font-roboto font-normal text-sm" dangerouslySetInnerHTML={dangerHTML()} />
+                                <div className="px-4 py-3 font-roboto font-normal text-sm break-words" dangerouslySetInnerHTML={dangerHTML()} />
 
                                 <div className="border-b border-gray-100"></div>
 

@@ -55,8 +55,8 @@ export default function QuestionOption({ data: options, chosen, onChosen, isSavi
                       <div className="">
                         <div className="text-sm">
                           <RadioGroup.Label
-                            as="p"
-                            className={`font-sm font-roboto ${
+                            as="div"
+                            className={`font-sm font-roboto break-words ${
                               checked ? 'text-white' : 'text-gray-900'
                             }`}
                             dangerouslySetInnerHTML={{ __html: option.answer }}
