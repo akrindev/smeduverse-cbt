@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useReducer } from "react"
 import { ToastContainer, toast } from 'react-toastify';
 import find from 'lodash/find';
 import filter from 'lodash/filter'
@@ -145,12 +145,13 @@ export default function ExamIndex() {
     useEffect(() => {
         
         if (typeof global.window !== "undefined") {
-            global.window.addEventListener('blur', handleWarn)
+            // onbeforeunload
+            global.window.addEventListener('beforeunload', handleWarn)
         }
 
         return () => {
             if (typeof global.window !== "undefined") {
-                global.window.removeEventListener('blur', handleWarn)
+                global.window.removeEventListener('beforeunload', handleWarn)
             }
         }
     }, [handleWarn])
@@ -194,8 +195,21 @@ export default function ExamIndex() {
                                         {isSaving && (<div className='text-xs rounded-lg text-green-800 bg-green-100 flex items-center justify-center space-x-2 py-1 px-3'><ThreeDots /> <span>menyimpan jawaban</span></div>)}
                                     </span>
                                 </div>
+                                {/* jika terdapat audio maka tampilkan audio */}
+                                {question?.audio && (
+                                    <div className="flex items-center p-3 border-b border-gray-200 font-nunito font-semibold text-lg">
+                                        <span className='mr-auto py-1'>
+                                            <audio controls>
+                                                <source src={question?.audio.url} type="audio/mpeg" />
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        </span>
+                                    </div>
+                                )}
                                 {/* pertanyaan */}
-                                <div className="px-4 py-3 font-roboto font-normal text-sm break-words" dangerouslySetInnerHTML={dangerHTML()} />
+                                <div
+                                    className="px-4 py-3 font-roboto font-normal text-sm break-words"
+                                    dangerouslySetInnerHTML={dangerHTML()} />
 
                                 <div className="border-b border-gray-100"></div>
 

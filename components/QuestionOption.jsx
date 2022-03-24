@@ -54,6 +54,14 @@ export default function QuestionOption({ data: options, chosen, onChosen, isSavi
                       )}
                       <div className="">
                         <div className="text-sm">
+                          {/* jika terdapat audio maka tampilkan audio */}
+                          {option.audio && (
+                            <div className={'flex items-center p-3 border-b border-gray-200 font-nunito font-semibold text-lg'}>
+                              <audio controls>
+                                <source src={option.audio.url} type="audio/mpeg" />
+                              </audio>
+                            </div>
+                          )}
                           <RadioGroup.Label
                             as="div"
                             className={`font-sm font-roboto break-words ${
