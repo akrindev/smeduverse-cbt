@@ -145,13 +145,12 @@ export default function ExamIndex() {
     useEffect(() => {
         
         if (typeof global.window !== "undefined") {
-            // onbeforeunload
-            global.window.addEventListener('beforeunload', handleWarn)
+            global.window.addEventListener('blur', handleWarn)
         }
 
         return () => {
             if (typeof global.window !== "undefined") {
-                global.window.removeEventListener('beforeunload', handleWarn)
+                global.window.removeEventListener('blur', handleWarn)
             }
         }
     }, [handleWarn])
