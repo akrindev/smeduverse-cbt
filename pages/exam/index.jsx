@@ -36,6 +36,9 @@ export default function ExamIndex() {
   const setWarn = useExamInfo((state) => state.setWarn);
   const questions = useExamQuestions((state) => state.questions);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
+  const updateChosenAnswer = useSavedAnswers(
+    (state) => state.updateChosenAnswer
+  );
 
   // dialog state
   const [isOpenDialog, setIsOpenDialog] = useState(false);
@@ -53,8 +56,7 @@ export default function ExamIndex() {
   const handleChosen = async (value) => {
     setIsSaving(true);
     // update saved answers
-    const answer = find(
-      savedAnswers,
+    const answer = savedAnswers.find(
       (item) => item.exam_soal_id === question.id
     );
 
@@ -66,18 +68,10 @@ export default function ExamIndex() {
           answer_chosen_id: value,
         })
         .then((res) => {
-          if (res.status === 200) {
-            setSavedAnswers((savedAnswers) => {
-              const newSavedAnswers = find(
-                savedAnswers,
-                (item) => item.exam_soal_id === question.id
-              );
-              newSavedAnswers.answer_chosen_id = value;
-              return savedAnswers;
-            });
-          }
+          if (res.status === 200) updateChosenAnswer(question.id, value);
         })
         .catch((err) => {
+          console.log(err);
           toast.error("jawaban gagal disimpan, ulangi kembali");
         })
         .finally(() => {

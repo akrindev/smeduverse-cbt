@@ -35,7 +35,15 @@ export const useExamInfo = create(
           },
         })),
 
-      setWarn: (warn) => set(() => ({ warn })),
+      setWarn: (warn) => {
+        // update warm
+        set(() => ({
+          examInfo: {
+            ...get().examInfo,
+            warn,
+          },
+        }));
+      },
     }),
 
     {
