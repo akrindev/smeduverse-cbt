@@ -36,11 +36,11 @@ export const useExamInfo = create(
           },
         })),
 
-      setWarn: (warn) => {
+      setWarn: ({ warn }) => {
         // update warm
-        set(() => ({
+        set((state) => ({
           examInfo: {
-            ...get().examInfo,
+            ...state.examInfo,
             warn,
           },
         }));
