@@ -151,6 +151,10 @@ export default function ExamIndex() {
     [examInfo, setWarn]
   );
 
+  const handleQuestionIndex = (i) => {
+    setQuestionIndex((prev) => i);
+  };
+
   // prevent leave window
   useEffect(() => {
     if (typeof global.window !== "undefined") {
@@ -264,7 +268,10 @@ export default function ExamIndex() {
               </div>
             </div>
             {/* navigasi soal */}
-            <NavigasiSoal onStopExam={stopExam} />
+            <NavigasiSoal
+              onStopExam={stopExam}
+              onQuestionIndex={handleQuestionIndex}
+            />
           </div>
           <div className='flex items-center justify-center text-center mt-14 text-warmGray-500'>
             <strong>Smeducative</strong>
@@ -280,11 +287,7 @@ export default function ExamIndex() {
         setIsOpen={setIsOpenDialog}
         title={`Yakin udah selesai?`}
         description={<ChosenAnswer answers={savedAnswers} />}
-        action={
-          <ButtonResult
-            sheetId={savedAnswers && savedAnswers[0]?.exam_answer_sheet_id}
-          />
-        }
+        action={<ButtonResult sheetId={savedAnswers[0].exam_answer_sheet_id} />}
       />
     </>
   );
@@ -292,13 +295,10 @@ export default function ExamIndex() {
 
 function ButtonResult({ sheetId }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [savedAnswers, setSavedAnswers] = useLocalStorage("exam-saved-answers");
 
   const handleClick = async () => {
     setIsLoading(true);
-    await getResult(
-      savedAnswers && savedAnswers[0]?.exam_answer_sheet_id
-    ).finally(() => setIsLoading(false));
+    await getResult(sheetId).finally(() => setIsLoading(false));
   };
 
   return (

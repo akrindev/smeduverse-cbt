@@ -1,12 +1,10 @@
-import { useState } from "react";
 import NavButirSoal from "./NavButirSoal";
-import useLocalStorage from "../../lib/hooks/useLocalStorage";
 import find from "lodash/find";
 import { useExamQuestions } from "../../store/useExamQuestions";
 import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useExamInfo } from "../../store/useExamInfo";
 
-const NavigasiSoal = ({ onStopExam }) => {
+const NavigasiSoal = ({ onStopExam, onQuestionIndex }) => {
   const questions = useExamQuestions((state) => state.questions);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
   const examInfo = useExamInfo((state) => state.examInfo);
@@ -33,7 +31,7 @@ const NavigasiSoal = ({ onStopExam }) => {
               <NavButirSoal
                 isChosen={isChosen(question.id)}
                 isRagu={isRagu(question.id)}
-                // onClick={setQuestionIndex(index)}
+                onClick={() => onQuestionIndex(index)}
                 key={question.id}
                 number={index + 1}
               />
