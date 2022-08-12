@@ -5,15 +5,17 @@ export const useSavedAnswers = create(
   persist(
     (set, get) => ({
       savedAnswers: [],
-      setSavedAnswers: (savedAnswers) => set(() => ({ savedAnswers })),
+      setSavedAnswers: (savedAnswers) =>
+        set((state) => ({
+          ...state.savedAnswers,
+          savedAnswers,
+        })),
       updateChosenAnswer: (qid, value) => {
         const newSavedAnswers = get().savedAnswers.find(
           (item) => item.exam_soal_id === qid
         );
 
         newSavedAnswers.answer_chosen_id = value;
-
-        console.log(newSavedAnswers, get().savedAnswers);
 
         set(() => [...get().savedAnswers, newSavedAnswers]);
       },

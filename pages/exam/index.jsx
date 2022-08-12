@@ -24,9 +24,6 @@ import { useExamInfo } from "../../store/useExamInfo";
 
 export default function ExamIndex() {
   const [question, setQuestion] = useState({});
-  //   const [questions, setQuestions] = useLocalStorage("exam-questions");
-  //   const [savedAnswers, setSavedAnswers] = useLocalStorage("exam-saved-answers");
-  //   const [examInfo, setExamInfo] = useLocalStorage("exam-info");
   const [chosenAnswer, setChosenAnswer] = useState(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -36,6 +33,7 @@ export default function ExamIndex() {
   const setWarn = useExamInfo((state) => state.setWarn);
   const questions = useExamQuestions((state) => state.questions);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
+  const setSavedAnswers = useSavedAnswers((state) => state.setSavedAnswers);
   const updateChosenAnswer = useSavedAnswers(
     (state) => state.updateChosenAnswer
   );
@@ -98,14 +96,13 @@ export default function ExamIndex() {
       })
       .then((res) => {
         if (res.status === 200) {
-          setSavedAnswers((savedAnswers) => {
-            const newSavedAnswers = find(
-              savedAnswers,
-              (item) => item.exam_soal_id === question.id
-            );
-            newSavedAnswers.ragu = answer.ragu === 1 ? 0 : 1;
-            return savedAnswers;
-          });
+          const newSavedAnswers = find(
+            savedAnswers,
+            (item) => item.exam_soal_id === question.id
+          );
+
+          newSavedAnswers.ragu = answer.ragu === 1 ? 0 : 1;
+          setSavedAnswers(savedAnswers);
         }
       })
       .catch((err) => console.log(err))
