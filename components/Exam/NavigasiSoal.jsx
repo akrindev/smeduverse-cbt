@@ -2,10 +2,14 @@ import { useState } from "react";
 import NavButirSoal from "./NavButirSoal";
 import useLocalStorage from "../../lib/hooks/useLocalStorage";
 import find from "lodash/find";
+import { useExamQuestions } from "../../store/useExamQuestions";
+import { useSavedAnswers } from "../../store/useSavedAnswers";
+import { useExamInfo } from "../../store/useExamInfo";
 
-const NavigasiSoal = (props) => {
-  const [savedAnswers, setSavedAnswers] = useLocalStorage("exam-saved-answers");
-  const [examInfo, setExamInfo] = useLocalStorage("exam-info");
+const NavigasiSoal = ({ onStopExam }) => {
+  const questions = useExamQuestions((state) => state.questions);
+  const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
+  const examInfo = useExamInfo((state) => state.examInfo);
 
   const isChosen = (chosenId) => {
     const chosen = find(savedAnswers, (item) => item.exam_soal_id === chosenId);
@@ -24,12 +28,12 @@ const NavigasiSoal = (props) => {
       <div className='p-4 bg-white rounded shadow'>
         <div className='font-bold text-base mb-5'>Navigasi Soal</div>
         <div className='grid grid-cols-10 gap-2 w-full mx-auto'>
-          {props.questions &&
-            props.questions.map((question, index) => (
+          {questions &&
+            questions.map((question, index) => (
               <NavButirSoal
                 isChosen={isChosen(question.id)}
                 isRagu={isRagu(question.id)}
-                // onClick={props.setQuestionIndex(index)}
+                // onClick={setQuestionIndex(index)}
                 key={question.id}
                 number={index + 1}
               />
@@ -38,7 +42,7 @@ const NavigasiSoal = (props) => {
         <div className='mt-5 flex justify-end'>
           <button
             className='bg-gray-200 text-sm px-4 py-1 rounded-lg border border-gray-500 font-medium'
-            onClick={props.onStopExam}>
+            onClick={onStopExam}>
             Hentikan Ujian
           </button>
         </div>

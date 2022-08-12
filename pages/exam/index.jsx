@@ -267,7 +267,7 @@ export default function ExamIndex() {
               </div>
             </div>
             {/* navigasi soal */}
-            {/* <NavigasiSoal questions={questions} onStopExam={stopExam} /> */}
+            <NavigasiSoal onStopExam={stopExam} />
           </div>
           <div className='flex items-center justify-center text-center mt-14 text-warmGray-500'>
             <strong>Smeducative</strong>

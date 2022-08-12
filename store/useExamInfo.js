@@ -23,8 +23,9 @@ export const useExamInfo = create(
         warn,
         warnEnabled,
       }) =>
-        set(() => ({
+        set((state) => ({
           examInfo: {
+            ...state.examInfo,
             start_time,
             end_time,
             mapel,
