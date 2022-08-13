@@ -26,7 +26,8 @@ export default function ButtonExamPage({ token }) {
       .then((res) => {
         // set exam to local storage
         setQuestions(res.data.data.paket.soal);
-        setSavedAnswers(res.data.data.answer_sheets[0]?.saved_answer);
+
+        setSavedAnswers(res.data.data.answer_sheets[0].saved_answer);
 
         setExamInfo({
           start_time: res.data.data.start_time,

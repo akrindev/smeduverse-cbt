@@ -6,18 +6,17 @@ export const useSavedAnswers = create(
     (set, get) => ({
       savedAnswers: [],
       setSavedAnswers: (savedAnswers) =>
-        set((state) => ({
-          ...state.savedAnswers,
-          savedAnswers,
-        })),
-      updateChosenAnswer: (qid, value) => {
-        const newSavedAnswers = get().savedAnswers.find(
-          (item) => item.exam_soal_id === qid
-        );
+        set((state) => ({ ...state, savedAnswers })),
+      setChosenAnswer: (chosenAnswer) => {
+        set((state) => {
+          const savedAnswers = [...state.savedAnswers];
+          const index = savedAnswers.findIndex(
+            (savedAnswer) => savedAnswer.id === chosenAnswer.id
+          );
 
-        newSavedAnswers.answer_chosen_id = value;
-
-        set(() => [...get().savedAnswers, newSavedAnswers]);
+          savedAnswers[index] = chosenAnswer;
+          return { savedAnswers };
+        });
       },
     }),
     {
