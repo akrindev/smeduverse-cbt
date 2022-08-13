@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ThreeDots } from "../Loading";
 import QuestionOption from "../QuestionOption";
+import { useExamInfo } from "../../store/useExamInfo";
 import { useExamQuestions } from "../../store/useExamQuestions";
 import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { api } from "../../lib/hooks/auth";
@@ -17,7 +18,6 @@ const QuestionSection = () => {
   const questionIndex = useExamQuestions((state) => state.questionIndex);
   const setQuestionIndex = useExamQuestions((state) => state.setQuestionIndex);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
-  const setSavedAnswers = useSavedAnswers((state) => state.setSavedAnswers);
   const updateChosenAnswer = useSavedAnswers((state) => state.setChosenAnswer);
 
   const handleChosen = async (value) => {
@@ -38,6 +38,7 @@ const QuestionSection = () => {
         .then((res) => {
           if (res.status === 200) {
             updateChosenAnswer(answer);
+            // console.log(answer);
           }
         })
         .catch((err) => {
@@ -59,22 +60,17 @@ const QuestionSection = () => {
       savedAnswers,
       (item) => item.exam_soal_id === question.id
     );
+    answer.ragu = answer.ragu === 1 ? 0 : 1;
 
     await api
       .patch("/api/exam/ragu-answer", {
         exam_answer_sheet_id: answer.exam_answer_sheet_id,
         exam_soal_id: answer.exam_soal_id,
-        ragu: answer.ragu === 1 ? 0 : 1,
+        ragu: answer.ragu,
       })
       .then((res) => {
         if (res.status === 200) {
-          const newSavedAnswers = find(
-            savedAnswers,
-            (item) => item.exam_soal_id === question.id
-          );
-
-          newSavedAnswers.ragu = answer.ragu === 1 ? 0 : 1;
-          setSavedAnswers(newSavedAnswers);
+          updateChosenAnswer(answer);
         }
       })
       .catch((err) => console.log(err))
@@ -83,8 +79,11 @@ const QuestionSection = () => {
       });
   };
 
-  const isRagu = (chosenId) =>
-    find(savedAnswers, (item) => item.exam_soal_id === chosenId)?.ragu == 1;
+  const isRagu = useCallback(
+    (chosenId) =>
+      find(savedAnswers, (item) => item.exam_soal_id === chosenId)?.ragu == 1,
+    [savedAnswers]
+  );
 
   const dangerHTML = () => {
     return {
