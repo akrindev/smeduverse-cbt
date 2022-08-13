@@ -8,6 +8,7 @@ export const useExamQuestions = create(
       questionIndex: 0,
       setQuestions: (questions) => set(() => ({ questions })),
       setQuestionIndex: (questionIndex) => set(() => ({ questionIndex })),
+      reset: () => set(() => ({ questions: [], questionIndex: 0 })),
     }),
     {
       name: "zustand-exam-questions",

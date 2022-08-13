@@ -18,6 +18,7 @@ export const useSavedAnswers = create(
           return { savedAnswers };
         });
       },
+      reset: () => set((state) => ({ ...state, savedAnswers: [] })),
     }),
     {
       name: "zustand-exam-saved-answers",

@@ -7,6 +7,7 @@ import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useExamInfo } from "../../store/useExamInfo";
 import Modal from "../Dialog";
 
+import { getResult } from "../../lib/services/getResult";
 import { loaderImg } from "../../lib/loaderImg";
 import filter from "lodash/filter";
 
@@ -112,9 +113,19 @@ const NavigasiSoal = ({ onStopExam, onQuestionIndex }) => {
 function ButtonResult({ sheetId }) {
   const [isLoading, setIsLoading] = useState(false);
 
+  const resetExamInfo = useExamInfo((state) => state.reset);
+  const resetExamQuestions = useExamQuestions((state) => state.reset);
+  const resetSavedAnswers = useSavedAnswers((state) => state.reset);
+
   const handleClick = async () => {
     setIsLoading(true);
-    await getResult(sheetId).finally(() => setIsLoading(false));
+
+    await getResult(sheetId).finally(() => {
+      setIsLoading(false);
+      resetExamInfo();
+      resetExamQuestions();
+      resetSavedAnswers();
+    });
   };
 
   return (

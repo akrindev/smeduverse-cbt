@@ -45,6 +45,18 @@ export const useExamInfo = create(
           },
         }));
       },
+      reset: () =>
+        set(() => ({
+          examInfo: {
+            start_time: null,
+            end_time: null,
+            mapel: null,
+            tingkat: null,
+            sheet_id: null,
+            warn: null,
+            warnEnabled: false,
+          },
+        })),
     }),
 
     {
