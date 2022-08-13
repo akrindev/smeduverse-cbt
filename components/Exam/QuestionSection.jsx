@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { ThreeDots } from "../Loading";
 import QuestionOption from "../QuestionOption";
-import { useExamInfo } from "../../store/useExamInfo";
 import { useExamQuestions } from "../../store/useExamQuestions";
 import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { api } from "../../lib/hooks/auth";
@@ -173,7 +172,6 @@ const QuestionSection = () => {
           </button>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 };

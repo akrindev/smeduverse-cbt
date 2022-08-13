@@ -11,7 +11,7 @@ import { getResult } from "../../lib/services/getResult";
 import { loaderImg } from "../../lib/loaderImg";
 import filter from "lodash/filter";
 
-const NavigasiSoal = ({ onStopExam, onQuestionIndex }) => {
+const NavigasiSoal = () => {
   const questions = useExamQuestions((state) => state.questions);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
   const examInfo = useExamInfo((state) => state.examInfo);
@@ -70,24 +70,23 @@ const NavigasiSoal = ({ onStopExam, onQuestionIndex }) => {
           <div className='mt-3'>
             <div className='flex flex-col items-start'>
               <div className='flex items-center space-x-3'>
-                <div className='h-2 w-2 bg-green-500 rounded'></div>{" "}
+                <div className='h-2 w-2 bg-green-500 rounded'></div>
                 <span className='text-xs text-gray-600'>
                   soal telah dijawab
                 </span>
               </div>
               <div className='flex items-center space-x-3 mt-1'>
-                <div className='h-2 w-2 bg-yellow-500 rounded'></div>{" "}
+                <div className='h-2 w-2 bg-yellow-500 rounded'></div>
                 <span className='text-xs text-gray-600'>ragu-ragu</span>
               </div>
               <div className='flex items-center space-x-3 mt-1'>
-                <div className='h-2 w-2 bg-gray-700 rounded'></div>{" "}
+                <div className='h-2 w-2 bg-gray-700 rounded'></div>
                 <span className='text-xs text-gray-600'>belum dijawab</span>
               </div>
               <div className='flex items-center mt-5 text-xs font-medium'>
-                <div className='text-red-600 mr-1'>Peringatan</div>{" "}
+                <div className='text-red-600 mr-1'>Peringatan</div>
                 <span className='text-xs text-red-900 font-bold'>
-                  {" "}
-                  {examInfo && examInfo.warn}{" "}
+                  {examInfo && examInfo.warn}
                 </span>
               </div>
             </div>
@@ -113,19 +112,10 @@ const NavigasiSoal = ({ onStopExam, onQuestionIndex }) => {
 function ButtonResult({ sheetId }) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const resetExamInfo = useExamInfo((state) => state.reset);
-  const resetExamQuestions = useExamQuestions((state) => state.reset);
-  const resetSavedAnswers = useSavedAnswers((state) => state.reset);
-
   const handleClick = async () => {
     setIsLoading(true);
 
-    await getResult(sheetId).finally(() => {
-      setIsLoading(false);
-      resetExamInfo();
-      resetExamQuestions();
-      resetSavedAnswers();
-    });
+    await getResult(sheetId).finally(() => setIsLoading(false));
   };
 
   return (

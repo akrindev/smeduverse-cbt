@@ -29,14 +29,6 @@ export default function ExamIndex() {
     }
   }, [questions, savedAnswers]);
 
-  const onTimeEnd = () => {
-    getResult(savedAnswers && savedAnswers[0]?.exam_answer_sheet_id).then(
-      (res) => {
-        toast.success("ujian di selesaikan");
-      }
-    );
-  };
-
   const handleWarn = useCallback(
     async (event) => {
       await api
@@ -75,7 +67,7 @@ export default function ExamIndex() {
       <Head>
         <title>Mengerjakan Ujian</title>
       </Head>
-      <ExamBegin header={<NavHead examInfo={examInfo} onTimeEnd={onTimeEnd} />}>
+      <ExamBegin header={<NavHead examInfo={examInfo} />}>
         <QuestionComponent />
       </ExamBegin>
       <ToastContainer />

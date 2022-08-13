@@ -1,17 +1,21 @@
-import Image from "next/image";
+import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useCallback, useState, useEffect } from "react";
 import { useExamInfo } from "../../store/useExamInfo";
 import ExamUserInfo from "./ExamUserInfo";
+import { getResult } from "../../lib/services/getResult";
+import { toast } from "react-toastify";
 
-export default function NavHead({ onTimeEnd }) {
+export default function NavHead() {
   return (
     <ExamUserInfo>
-      <Timer onTimeEnd={onTimeEnd} />
+      <Timer />
     </ExamUserInfo>
   );
 }
 
-const Timer = ({ onTimeEnd }) => {
+const Timer = () => {
+  const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
+
   const [endTime, setEndTime] = useState(null);
 
   const examInfo = useExamInfo((state) => state.examInfo);
@@ -26,12 +30,20 @@ const Timer = ({ onTimeEnd }) => {
 
   // listening to interval event
   useEffect(() => {
-    if (endTime && endTime < 2000) onTimeEnd();
+    if (endTime && endTime < 2000) {
+      getResult(savedAnswers && savedAnswers[0]?.exam_answer_sheet_id).then(
+        (res) => {
+          toast.success("ujian di selesaikan");
+        }
+      );
+
+      return;
+    }
 
     const time = setInterval(handleInterval, 1000);
 
     return () => clearInterval(time);
-  }, [endTime, handleInterval, onTimeEnd]);
+  }, [endTime, handleInterval, savedAnswers]);
 
   let hour = Math.floor((endTime / 3600000) % 24); // time diff's hours (modulated to 24)
   let min = Math.floor((endTime / 60000) % 60); // time diff's minutes (modulated to 60)
