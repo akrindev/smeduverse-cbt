@@ -83,12 +83,15 @@ const NavigasiSoal = () => {
                 <div className='h-2 w-2 bg-gray-700 rounded'></div>
                 <span className='text-xs text-gray-600'>belum dijawab</span>
               </div>
-              <div className='flex items-center mt-5 text-xs font-medium'>
-                <div className='text-red-600 mr-1'>Peringatan</div>
-                <span className='text-xs text-red-900 font-bold'>
-                  {examInfo && examInfo.warn}
-                </span>
-              </div>
+
+              {examInfo.warnEnabled && (
+                <div className='flex items-center mt-5 text-xs font-medium'>
+                  <div className='text-red-600 mr-1'>Peringatan</div>
+                  <span className='text-xs text-red-900 font-bold'>
+                    {examInfo && examInfo.warn}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ export const useExamQuestions = create(
     (set, get) => ({
       questions: [],
       questionIndex: 0,
-      setQuestions: (questions) => set(() => ({ questions })),
+      setQuestions: (questions) => set(() => ({ questions, questionIndex: 0 })),
       setQuestionIndex: (questionIndex) => set(() => ({ questionIndex })),
       reset: () => set(() => ({ questions: [], questionIndex: 0 })),
     }),

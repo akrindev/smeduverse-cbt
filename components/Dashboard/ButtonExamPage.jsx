@@ -36,6 +36,7 @@ export default function ButtonExamPage({ token }) {
           tingkat: res.data.data.paket.tingkat_kelas,
           sheet_id: res.data.data.answer_sheets[0]?.id,
           warn: res.data.data.answer_sheets[0]?.warn || 0,
+          warnEnabled: res.data.data.warn_enabled === 1,
         });
         // // ?then move to exam page
         router.push("/exam");

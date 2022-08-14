@@ -51,16 +51,16 @@ export default function ExamIndex() {
 
   // prevent leave window
   useEffect(() => {
-    if (typeof global.window !== "undefined") {
+    if (typeof global.window !== "undefined" && examInfo.warnEnabled) {
       global.window.addEventListener("blur", handleWarn);
     }
 
     return () => {
-      if (typeof global.window !== "undefined") {
+      if (typeof global.window !== "undefined" && examInfo.warnEnabled) {
         global.window.removeEventListener("blur", handleWarn);
       }
     };
-  }, [handleWarn]);
+  }, [handleWarn, examInfo]);
 
   return (
     <>

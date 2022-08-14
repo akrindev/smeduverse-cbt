@@ -149,6 +149,11 @@ function ScheduleCard({ schedules }) {
                     <span>{schedule.paket.kkm} KKM</span>
                   </div>
                 </div>
+                {schedule.warn_enabled ? (
+                  <div className='text-xs text-rose-600 italic'>
+                    peringatan aktif
+                  </div>
+                ) : null}
                 <div className='flex items-center space-x-2 text-xs text-gray-600'>
                   <div className='flex items-center space-x-1'>
                     <svg
