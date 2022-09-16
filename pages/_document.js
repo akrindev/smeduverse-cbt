@@ -9,8 +9,9 @@ class MyDocument extends Document {
 
   render() {
     return (
-      <Html>
+      <Html lang='id'>
         <Head>
+          <meta name='google' content='notranslate' />
           <link rel='preconnect' href='https://fonts.googleapis.com' />
           <link
             rel='preconnect'
