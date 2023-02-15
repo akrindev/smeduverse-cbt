@@ -51,7 +51,7 @@ const Timer = () => {
     const time = setInterval(handleInterval, 1000);
 
     return () => clearInterval(time);
-  }, [endTime, handleInterval, savedAnswers]);
+  }, [endTime, handleInterval, savedAnswers, min, hour, setSubmitable]);
 
   const [hour, min, sec] = useMemo(() => {
     let hour = Math.floor((endTime / 3600000) % 24); // time diff's hours (modulated to 24)
