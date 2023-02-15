@@ -1,9 +1,10 @@
 import { useSavedAnswers } from "../../store/useSavedAnswers";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { useExamInfo } from "../../store/useExamInfo";
 import ExamUserInfo from "./ExamUserInfo";
 import { getResult } from "../../lib/services/getResult";
 import { toast } from "react-toastify";
+import { useExamTime } from "../../store/useExamTime";
 
 export default function NavHead() {
   return (
@@ -19,6 +20,7 @@ const Timer = () => {
   const [endTime, setEndTime] = useState(null);
 
   const examInfo = useExamInfo((state) => state.examInfo);
+  const setSubmitable = useExamTime((state) => state.setSubmitable);
 
   const { end_time } = examInfo;
 
@@ -40,20 +42,30 @@ const Timer = () => {
       return;
     }
 
+    if (hour != 0 && min <= 15 && min != 0) {
+      setSubmitable({ submitable: true });
+    } else {
+      setSubmitable({ submitable: false });
+    }
+
     const time = setInterval(handleInterval, 1000);
 
     return () => clearInterval(time);
   }, [endTime, handleInterval, savedAnswers]);
 
-  let hour = Math.floor((endTime / 3600000) % 24); // time diff's hours (modulated to 24)
-  let min = Math.floor((endTime / 60000) % 60); // time diff's minutes (modulated to 60)
-  let sec = Math.floor((endTime / 1000) % 60); // time diff's seconds (modulated to 60)
+  const [hour, min, sec] = useMemo(() => {
+    let hour = Math.floor((endTime / 3600000) % 24); // time diff's hours (modulated to 24)
+    let min = Math.floor((endTime / 60000) % 60); // time diff's minutes (modulated to 60)
+    let sec = Math.floor((endTime / 1000) % 60); // time diff's seconds (modulated to 60)
+    return [hour, min, sec];
+  }, [endTime]);
 
   return (
     <div
       className={`rounded-xl text-xs shadow-2xl px-4 py-1 font-semibold ${
         hour === 0 && min <= 5 ? "bg-red-700 text-white" : "bg-white"
-      }`}>
+      }`}
+    >
       sisa waktu: {`${hour}j ${min}m ${sec}d`}
     </div>
   );
