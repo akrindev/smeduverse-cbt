@@ -73,7 +73,7 @@ const NavigasiSoal = () => {
               </button>
             ) : (
               <span className="text-gray-400 text-xs">
-                ujian dapat dikumpulkan setelah waktu tertentu
+                ujian dapat dikumpulkan 15 menit sebelum ujian berakhir
               </span>
             )}
           </div>
