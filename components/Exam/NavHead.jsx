@@ -42,7 +42,7 @@ const Timer = () => {
       return;
     }
 
-    if (hour != 0 && min <= 15 && min != 0) {
+    if (hour == 0 && min <= 15) {
       setSubmitable({ submitable: true });
     } else {
       setSubmitable({ submitable: false });
