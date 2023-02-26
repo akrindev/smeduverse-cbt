@@ -3,12 +3,12 @@ import NavigasiSoal from "./NavigasiSoal";
 
 const QuestionComponent = () => {
   const absorbEvent = (event) => {
-    var e = event || window.event;
-    e.preventDefault && e.preventDefault();
-    e.stopPropagation && e.stopPropagation();
-    e.cancelBubble = true;
-    e.returnValue = false;
-    return false;
+//    var e = event || window.event;
+//    e.preventDefault && e.preventDefault()
+//    e.stopPropagation && e.stopPropagation();
+//    e.cancelBubble = true;
+//    e.returnValue = false;
+//    return false;
   };
 
   return (
