@@ -4,22 +4,22 @@ import "../assets/ckstyles.css";
 import Script from "next/script";
 import { Nunito, Poppins, Roboto } from "next/font/google";
 
-const inter = Nunito({
+export const inter = Nunito({
   subsets: ["latin"],
   variable: "--font-inter",
-  weight: "400",
+  weight: ["300", "400", "600", "700"],
 });
 
-const poppins = Poppins({
+export const poppins = Poppins({
   subsets: ["latin"],
   variable: "--font-poppins",
-  weight: "400",
+  weight: ["300", "400", "600", "700"],
 });
 
-const roboto = Roboto({
+export const roboto = Roboto({
   subsets: ["latin"],
   variable: "--font-roboto",
-  weight: "400",
+  weight: ["300", "400", "600", "700"],
 });
 
 function MyApp({ Component, pageProps }) {
