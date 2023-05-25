@@ -19,7 +19,7 @@ export const poppins = Poppins({
 export const roboto = Roboto({
   subsets: ["latin"],
   variable: "--font-roboto",
-  weight: ["300", "400", "600", "700"],
+  weight: ["300", "400", "700"],
 });
 
 function MyApp({ Component, pageProps }) {
