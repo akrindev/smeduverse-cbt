@@ -1,14 +1,16 @@
-
 module.exports = {
-  content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       fontFamily: {
-        nunito: ['Nunito', 'sans-serif'],
-        poppins: ['Poppins', 'sans-serif'],
-        roboto: ['Roboto', 'sans-serif'],
-      }
+        nunito: ["var(--font-nunito)", "sans-serif"],
+        poppins: ["var(--font-poppins)", "sans-serif"],
+        roboto: ["var(--font-roboto)", "sans-serif"],
+      },
     },
   },
   plugins: [],
-}
+};
