@@ -1,5 +1,9 @@
+const withPWA = require("next-pwa")({
+  dest: "public",
+});
+
 /** @type {import('next').NextConfig} */
-module.exports = {
+module.exports = withPWA({
   swcMinify: true,
   reactStrictMode: true,
   // image loader
@@ -19,4 +23,4 @@ module.exports = {
       "/ujian-susulan": { page: "/ujian-susulan" },
     };
   },
-};
+});
