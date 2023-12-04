@@ -7,11 +7,13 @@ import { api } from "../../lib/hooks/auth";
 import find from "lodash/find";
 
 import { ToastContainer, toast } from "react-toastify";
+import { set } from "lodash";
 
 const QuestionSection = () => {
   const [question, setQuestion] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [chosenAnswer, setChosenAnswer] = useState(null);
+  const [initiating, setInitiating] = useState(true);
 
   const questions = useExamQuestions((state) => state.questions);
   const questionIndex = useExamQuestions((state) => state.questionIndex);
@@ -91,6 +93,9 @@ const QuestionSection = () => {
   };
 
   useEffect(() => {
+    // set initiating to false
+    setInitiating(false);
+
     const getChosenAnswer = () => {
       const chosen = find(savedAnswers, { exam_soal_id: question?.id });
 
@@ -101,21 +106,23 @@ const QuestionSection = () => {
       setQuestion(questions[questionIndex]);
       getChosenAnswer();
     }
+
+    return () => {
+      setInitiating(true);
+    };
   }, [questionIndex, question, questions, savedAnswers]);
 
   return (
-    <div className="bg-white rounded shadow">
+    <div className='bg-white rounded shadow'>
       {/* header info */}
-      <div className="flex items-center p-3 border-b border-gray-200 font-nunito font-semibold text-lg">
-        <div className="mr-auto py-1">
-          {questions && (
-            <>
-              Soal {questionIndex + 1} / {questions.length}
-            </>
-          )}
-        </div>
+      <div className='flex items-center p-3 border-b border-gray-200 font-nunito font-semibold text-lg'>
+        {!initiating && (
+          <div className='mr-auto py-1'>
+            Soal {questionIndex + 1 || 0} / {questions.length || 0}
+          </div>
+        )}
         {isSaving && (
-          <div className="text-xs rounded-lg text-green-800 bg-green-100 flex items-center justify-center space-x-2 py-1 px-3">
+          <div className='text-xs rounded-lg text-green-800 bg-green-100 flex items-center justify-center space-x-2 py-1 px-3'>
             <ThreeDots /> menyimpan jawaban
           </div>
         )}
@@ -123,10 +130,10 @@ const QuestionSection = () => {
 
       {/* jika terdapat audio maka tampilkan audio */}
       {question?.audio && (
-        <div className="flex items-center p-3 border-b border-gray-200 font-nunito font-semibold text-lg">
-          <div className="mr-auto py-1">
+        <div className='flex items-center p-3 border-b border-gray-200 font-nunito font-semibold text-lg'>
+          <div className='mr-auto py-1'>
             <audio controls>
-              <source src={question?.audio.url} type="audio/mpeg" />
+              <source src={question?.audio.url} type='audio/mpeg' />
               Your browser does not support the audio element.
             </audio>
           </div>
@@ -135,13 +142,13 @@ const QuestionSection = () => {
 
       {/* pertanyaan */}
       <div
-        className="px-4 py-3 font-roboto font-normal text-sm break-words"
+        className='px-4 py-3 font-roboto font-normal text-sm break-words'
         dangerouslySetInnerHTML={dangerHTML()}
       />
 
-      <div className="border-b border-gray-100"></div>
+      <div className='border-b border-gray-100'></div>
 
-      <div className="p-3">
+      <div className='p-3'>
         <QuestionOption
           data={question.choices}
           chosen={chosenAnswer}
@@ -151,13 +158,12 @@ const QuestionSection = () => {
       </div>
 
       {/* navigasi */}
-      <div className="p-3 pb-5" key={question.id}>
-        <div className="flex items-center justify-between">
+      <div className='p-3 pb-5' key={question.id}>
+        <div className='flex items-center justify-between'>
           <button
             onClick={() => setQuestionIndex(questionIndex - 1)}
-            className="p-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50"
-            disabled={questionIndex == 0}
-          >
+            className='p-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50'
+            disabled={questionIndex == 0}>
             Soal sebelumnya
           </button>
           <button
@@ -166,15 +172,13 @@ const QuestionSection = () => {
                 ? "bg-yellow-500 text-gray-100"
                 : "bg-white text-yellow-500"
             } border border-yellow-600  text-xs rounded-md`}
-            onClick={handleRagu}
-          >
+            onClick={handleRagu}>
             Ragu-ragu
           </button>
           <button
             onClick={() => setQuestionIndex(questionIndex + 1)}
-            className="px-3 py-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50"
-            disabled={questions && questionIndex == questions.length - 1}
-          >
+            className='px-3 py-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50'
+            disabled={questions && questionIndex == questions.length - 1}>
             Soal berikutnya
           </button>
         </div>
