@@ -20,12 +20,16 @@ const NavigasiSoal = () => {
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   // state for initiate
   const [initiating, setInitiating] = useState(true);
-  // is submitable
-  const [isSubmitable, setIsSubmitable] = useState(false);
+
+  const [canSubmit, setCanSubmit] = useState(false);
 
   const { submitable } = useExamTime((state) => state.submitable);
 
   const stopExam = () => {
+    if (canSubmit && !submitable) {
+      return;
+    }
+
     setIsOpenDialog(true);
   };
 
@@ -56,9 +60,11 @@ const NavigasiSoal = () => {
       setInitiating(false);
     }
 
-    if (submitable) {
-      setIsSubmitable(true);
-    }
+    let time = setTimeout(() => {
+      setCanSubmit(submitable ? true : false);
+    }, 2000);
+
+    return () => clearTimeout(time);
   }, [questions, submitable]);
 
   return (
@@ -80,7 +86,7 @@ const NavigasiSoal = () => {
                 ))}
             </div>
             <div className='mt-5 flex justify-end'>
-              {!isSubmitable ? (
+              {canSubmit ? (
                 <button
                   className='bg-gray-200 text-sm px-4 py-1 rounded-lg border border-gray-500 font-medium'
                   onClick={stopExam}>
