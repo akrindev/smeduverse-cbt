@@ -4,14 +4,11 @@ import { useEffect, useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 
 import { api } from "../../lib/hooks/auth";
-import { getResult } from "../../lib/services/getResult";
 import ExamBegin from "../../components/Layouts/ExamBegin";
 import NavHead from "../../components/Exam/NavHead";
-import NavigasiSoal from "../../components/Exam/NavigasiSoal";
 import { useExamQuestions } from "../../store/useExamQuestions";
 import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useExamInfo } from "../../store/useExamInfo";
-import QuestionSection from "../../components/Exam/QuestionSection";
 import QuestionComponent from "../../components/Exam/QuestionComponent";
 
 export default function ExamIndex() {

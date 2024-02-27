@@ -26,76 +26,81 @@ export default function Login() {
       <Head>
         <title>CBT Login</title>
       </Head>
-      <div className='container mx-auto px-4 h-full'>
-        <div className='flex content-center items-center justify-center h-full'>
-          <div className='w-full max-w-md px-4'>
-            <div className='relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-md bg-white border-0'>
-              <div className='rounded-t mb-0 px-6 py-6'>
-                <div className='text-center mb-3'>
-                  <div className='flex items-center justify-center'>
-                    <img
-                      src={`/assets/images/tutwurihandayani.png`}
-                      alt='Tutwuri Handayani'
-                      width={65}
-                      height={65}
-                    />
+      <div className="container mx-auto px-4 h-full">
+        <div className="flex content-center items-center justify-center h-full">
+          <div className="w-full max-w-md px-4">
+            <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-md bg-white border-0">
+              <div className="rounded-t mb-0 px-6 py-6">
+                <div className="text-center mb-3">
+                  <div className="flex items-center justify-center">
+                    <slot>
+                      <img
+                        src={"/assets/images/tutwurihandayani.png"}
+                        alt="Tutwuri Handayani"
+                        width={65}
+                        height={65}
+                      />
+                    </slot>
                   </div>
-                  <h6 className='text-blue-700 text-2xl font-poppins font-bold'>
+                  <h6 className="text-blue-700 text-2xl font-poppins font-bold">
                     Computer Based Test
                   </h6>
-                  <span className='text-sm text-lightBlue-600 font-nunito'>
+                  <span className="text-sm text-lightBlue-600 font-nunito">
                     🎉 Sebelum masuk, identifikasi diri kamu dulu yuk
                   </span>
                 </div>
 
-                <hr className='mt-6 border-b-1 border-blueGray-300' />
+                <hr className="mt-6 border-b-1 border-blueGray-300" />
               </div>
-              {errors &&
-                errors.map((error) => (
-                  <div
-                    key={error}
-                    className='p-3 text-center bg-red-100 text-red-700 mb-3'>
-                    {error}
-                  </div>
-                ))}
-              <div className='flex-auto px-4 lg:px-10 py-10 pt-0'>
+              {errors?.map((error) => (
+                <div
+                  key={error}
+                  className="p-3 text-center bg-red-100 text-red-700 mb-3"
+                >
+                  {error}
+                </div>
+              ))}
+              <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
                 <form onSubmit={submitForm}>
-                  <div className='relative w-full mb-3'>
+                  <div className="relative w-full mb-3">
                     <label
-                      className='block uppercase text-zinc-600 text-xs font-bold mb-2'
-                      htmlFor='grid-password'>
+                      className="block uppercase text-zinc-600 text-xs font-bold mb-2"
+                      htmlFor="grid-password"
+                    >
                       NIS
                     </label>
                     <input
-                      type='text'
-                      className='px-3 py-3 placeholder-zinc-300 text-zinc-900 bg-zinc-100 rounded text-sm shadow focus:bg-blue-50 w-full'
-                      placeholder='NIS'
+                      type="text"
+                      className="px-3 py-3 placeholder-zinc-300 text-zinc-900 bg-zinc-100 rounded text-sm shadow focus:bg-blue-50 w-full"
+                      placeholder="NIS"
+                      // biome-ignore lint/a11y/noAutofocus: <explanation>
                       autoFocus
-                      autoComplete='username'
+                      autoComplete="username"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
 
-                  <div className='relative w-full mb-3'>
+                  <div className="relative w-full mb-3">
                     <label
-                      className='block uppercase text-zinc-600 text-xs font-bold mb-2'
-                      htmlFor='grid-password'>
+                      className="block uppercase text-zinc-600 text-xs font-bold mb-2"
+                      htmlFor="grid-password"
+                    >
                       Password
                     </label>
                     <input
-                      type='password'
-                      className='px-3 py-3 placeholder-zinc-300 text-zinc-900 bg-zinc-100 rounded text-sm shadow focus:bg-blue-50 w-full'
-                      placeholder='Password'
-                      autoComplete='current-password'
+                      type="password"
+                      className="px-3 py-3 placeholder-zinc-300 text-zinc-900 bg-zinc-100 rounded text-sm shadow focus:bg-blue-50 w-full"
+                      placeholder="Password"
+                      autoComplete="current-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                   </div>
 
-                  <div className='text-center mt-6'>
+                  <div className="text-center mt-6">
                     <button
                       className={`
                                         flex items-center justify-center
@@ -104,14 +109,24 @@ export default function Login() {
                                         rounded-md shadow-lg hover:shadow-lg outline-none focus:outline-none 
                                         mr-1 mb-1 w-full ease-linear transition-all duration-150 
                                         disabled:opacity-75`}
-                      type='submit'
-                      disabled={status === "loading"}>
+                      type="submit"
+                      disabled={status === "loading"}
+                    >
                       {status === "loading" ? <ThreeDots /> : "Masuk"}
                     </button>
                   </div>
                 </form>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap mb-10">
+          <div className="w-full text-center text-xs md:text-sm opacity-70">
+            <strong className="text-white font-bold">Smeducative</strong>{" "}
+            <span className="text-white font-thin">
+              is part of SMK Diponegoro Karanganyar
+            </span>
           </div>
         </div>
       </div>

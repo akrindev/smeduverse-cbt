@@ -39,3 +39,4 @@ yarn-error.log*
 /public/sw.js
 /public/fallback-*.js
 /public/workbox-*.js
+/public/*.map

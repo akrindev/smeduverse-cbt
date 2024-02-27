@@ -52,13 +52,15 @@ export default function ButtonExamPage({ token }) {
   };
 
   return (
+    // biome-ignore lint/a11y/useButtonType: <explanation>
     <button
-      className='flex bg-green-500 px-5 py-1 rounded-lg text-white font-nunito border shadow disabled:opacity-50'
+      className="flex bg-green-500 px-5 py-1 rounded-lg text-white font-nunito border shadow disabled:opacity-50"
       onClick={onButtonClicked}
-      disabled={isLoading}>
+      disabled={isLoading}
+    >
       {isLoading ? (
         <>
-          <ThreeDots /> <span className='ml-2'>memuat soal</span>{" "}
+          <ThreeDots /> <span className="ml-2">memuat soal</span>{" "}
         </>
       ) : (
         <>Mulai</>
