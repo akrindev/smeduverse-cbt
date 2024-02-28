@@ -55,9 +55,10 @@ const QuestionSection = () => {
     }
   };
 
-  const handleContentAnswer = useCallback(() => {
-    debounce((value) => {
+  const handleContentAnswer = useCallback(
+    (value) => {
       setIsSaving(true);
+
       // update saved answers
       const answer = find(
         savedAnswers,
@@ -75,7 +76,6 @@ const QuestionSection = () => {
           .then((res) => {
             if (res.status === 200) {
               updateChosenAnswer(answer);
-              setContentAnswer(value);
             }
           })
           .catch((err) => {
@@ -88,8 +88,9 @@ const QuestionSection = () => {
       } catch (error) {
         console.log("catch", error);
       }
-    }, 1000);
-  }, [savedAnswers, question, updateChosenAnswer]);
+    },
+    [savedAnswers, question, updateChosenAnswer]
+  );
 
   const handleRagu = async (value) => {
     setIsSaving(true);
@@ -153,6 +154,18 @@ const QuestionSection = () => {
     };
   }, [questionIndex, question, questions, savedAnswers]);
 
+  // use effect to listen to content answer
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (contentAnswer) {
+        handleContentAnswer(contentAnswer);
+      }
+    }, 1000);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contentAnswer]);
+
   return (
     <div className="bg-white rounded shadow">
       {/* header info */}
@@ -212,7 +225,7 @@ const QuestionSection = () => {
               value={contentAnswer}
               onChange={(e) => {
                 setContentAnswer(e.target.value);
-                handleContentAnswer(e.target.value);
+                // handleContentAnswer(e.target.value);
               }}
             />
           </div>
