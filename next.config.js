@@ -1,9 +1,8 @@
-const withPWA = require("next-pwa")({
-  dest: "public",
-});
+import million from "million/compiler";
+import withPWA from "next-pwa";
 
 /** @type {import('next').NextConfig} */
-module.exports = withPWA({
+const nextConfig = withPWA({
   swcMinify: true,
   reactStrictMode: true,
   // image loader
@@ -11,16 +10,24 @@ module.exports = withPWA({
     loader: "custom",
   },
   trailingSlash: true,
-  exportPathMap: async function (
+  exportPathMap: async (
     defaultPathMap,
     { dev, dir, outDir, distDir, buildId }
-  ) {
-    return {
-      "/": { page: "/" },
-      "/dashboard": { page: "/dashboard" },
-      "/exam": { page: "/exam" },
-      "/exam/selesai": { page: "/exam/selesai" },
-      "/ujian-susulan": { page: "/ujian-susulan" },
-    };
+  ) => ({
+    "/": { page: "/" },
+    "/dashboard": { page: "/dashboard" },
+    "/exam": { page: "/exam" },
+    "/exam/selesai": { page: "/exam/selesai" },
+    "/ujian-susulan": { page: "/ujian-susulan" },
+  }),
+});
+
+export default million.next(nextConfig, {
+  auto: {
+    threshold: 0.05, // default: 0.1,
+    skip: ["useBadHook", /badVariable/g], // default [],
+
+    // if you're using RSC: auto: { rsc: true },
   },
+  rsc: true,
 });

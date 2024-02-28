@@ -1,6 +1,7 @@
 {
   "name": "cbt-next",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -13,6 +14,7 @@
     "autoprefixer": "^10.4.14",
     "axios": "^1.6.2",
     "lodash": "^4.17.21",
+    "million": "^3.0.3",
     "next": "^14.0.3",
     "next-pwa": "^5.6.0",
     "postcss": "^8.4.21",
@@ -26,6 +28,7 @@
     "zustand": "^4.3.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.5.3",
     "eslint": "^8.55.0",
     "eslint-config-next": "14.0.1"
   },
@@ -36,5 +39,11 @@
     "firefox >= 49",
     "android >= 4",
     "and_uc >= 9.9"
-  ]
+  ],
+  "postcss": {
+    "plugins": {
+      "tailwindcss": {},
+      "autoprefixer": {}
+    }
+  }
 }
