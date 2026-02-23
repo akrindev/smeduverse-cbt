@@ -19,7 +19,15 @@ export default function QuestionOption({
   };
 
   return (
-    <div className="w-full py-5">
+    <div
+      className="w-full py-5 select-none"
+      style={{
+        WebkitUserSelect: "none",
+        WebkitTouchCallout: "none",
+        userSelect: "none",
+      }}
+      data-exam-protected="true"
+    >
       <div className="w-full mx-auto">
         <RadioGroup value={selected} onChange={handleChange}>
           <RadioGroup.Label className="sr-only">
@@ -81,6 +89,11 @@ export default function QuestionOption({
                             className={`font-sm font-roboto break-words ${
                               checked ? "text-white" : "text-gray-900"
                             }`}
+                            style={{
+                              WebkitUserSelect: "none",
+                              WebkitTouchCallout: "none",
+                              userSelect: "none",
+                            }}
                             // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                             dangerouslySetInnerHTML={{
                               __html: option.answer,

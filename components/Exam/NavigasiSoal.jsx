@@ -23,7 +23,7 @@ const NavigasiSoal = () => {
 
   const [canSubmit, setCanSubmit] = useState(false);
 
-  const { submitable } = useExamTime((state) => state.submitable);
+  const submitable = useExamTime((state) => state.submitable);
 
   const stopExam = () => {
     if (canSubmit && !submitable) {

@@ -130,6 +130,19 @@ const QuestionSection = () => {
     };
   };
 
+  const blockCopyEvent = (event) => {
+    event.preventDefault();
+  };
+
+  const protectedContentProps = {
+    "data-exam-protected": "true",
+    onCopy: blockCopyEvent,
+    onCut: blockCopyEvent,
+    onContextMenu: blockCopyEvent,
+    onDragStart: blockCopyEvent,
+    onSelectStart: blockCopyEvent,
+  };
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // set initiating to false
@@ -196,22 +209,31 @@ const QuestionSection = () => {
       )}
 
       {/* pertanyaan */}
-      <div
-        className="px-4 py-3 font-roboto font-normal text-sm break-words"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-        dangerouslySetInnerHTML={dangerHTML()}
-      />
+      <div {...protectedContentProps}>
+        <div
+          className="px-4 py-3 font-roboto font-normal text-sm break-words select-none"
+          style={{
+            WebkitUserSelect: "none",
+            WebkitTouchCallout: "none",
+            userSelect: "none",
+          }}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+          dangerouslySetInnerHTML={dangerHTML()}
+        />
+      </div>
 
       <div className="border-b border-gray-100" />
 
       <div className="p-3">
         {question?.type === 1 && (
-          <QuestionOption
-            data={question.choices}
-            chosen={chosenAnswer}
-            onChosen={handleChosen}
-            isSaving={isSaving}
-          />
+          <div {...protectedContentProps}>
+            <QuestionOption
+              data={question.choices}
+              chosen={chosenAnswer}
+              onChosen={handleChosen}
+              isSaving={isSaving}
+            />
+          </div>
         )}
 
         {question?.type === 2 && (

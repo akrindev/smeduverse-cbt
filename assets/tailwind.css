@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+.exam-secure-mode [data-exam-protected="true"] {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media print {
+  .exam-secure-mode [data-exam-protected="true"] {
+    visibility: hidden;
+  }
+}

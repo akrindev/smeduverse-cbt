@@ -1,5 +1,5 @@
-import "tailwindcss/tailwind.css";
-import "react-toastify/dist/ReactToastify.min.css";
+import "../assets/tailwind.css";
+import "react-toastify/dist/ReactToastify.css";
 import "../assets/ckstyles.css";
 import Script from "next/script";
 import { Nunito, Poppins, Roboto } from "next/font/google";

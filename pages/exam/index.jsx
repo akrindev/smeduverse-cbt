@@ -46,6 +46,35 @@ export default function ExamIndex() {
     [examInfo, setWarn]
   );
 
+  const isProtectedSelection = useCallback(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) {
+      return false;
+    }
+
+    const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+    const element =
+      container?.nodeType === 1
+        ? container
+        : container?.parentElement;
+
+    return Boolean(
+      element?.closest && element.closest("[data-exam-protected='true']")
+    );
+  }, []);
+
+  const isProtectedTarget = useCallback((target) => {
+    return Boolean(
+      target instanceof Element &&
+        target.closest("[data-exam-protected='true']")
+    );
+  }, []);
+
   // prevent leave window
   useEffect(() => {
     if (typeof global.window !== "undefined" && examInfo.warnEnabled) {
@@ -58,6 +87,58 @@ export default function ExamIndex() {
       }
     };
   }, [handleWarn, examInfo]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const preventProtectedClipboard = (event) => {
+      if (isProtectedTarget(event.target) || isProtectedSelection()) {
+        event.preventDefault();
+      }
+    };
+
+    const preventProtectedShortcuts = (event) => {
+      const key = event.key?.toLowerCase();
+      const isClipboardShortcut =
+        (event.ctrlKey || event.metaKey) &&
+        ["c", "x", "a", "s", "p", "u"].includes(key);
+      const isPrintScreen = key === "printscreen";
+
+      if (
+        isPrintScreen ||
+        ((isClipboardShortcut || key === "f12") &&
+          (isProtectedTarget(event.target) || isProtectedSelection()))
+      ) {
+        event.preventDefault();
+      }
+    };
+
+    document.body.classList.add("exam-secure-mode");
+    document.addEventListener("copy", preventProtectedClipboard, true);
+    document.addEventListener("cut", preventProtectedClipboard, true);
+    document.addEventListener("contextmenu", preventProtectedClipboard, true);
+    document.addEventListener("dragstart", preventProtectedClipboard, true);
+    document.addEventListener("keydown", preventProtectedShortcuts, true);
+
+    return () => {
+      document.body.classList.remove("exam-secure-mode");
+      document.removeEventListener("copy", preventProtectedClipboard, true);
+      document.removeEventListener("cut", preventProtectedClipboard, true);
+      document.removeEventListener(
+        "contextmenu",
+        preventProtectedClipboard,
+        true
+      );
+      document.removeEventListener(
+        "dragstart",
+        preventProtectedClipboard,
+        true
+      );
+      document.removeEventListener("keydown", preventProtectedShortcuts, true);
+    };
+  }, [isProtectedSelection, isProtectedTarget]);
 
   return (
     <>

@@ -1,10 +1,11 @@
 import Head from 'next/head'
 import ExamBegin from "../../components/Layouts/ExamBegin"
-// import lottie
-import Lottie from "react-lottie";
+import dynamic from "next/dynamic";
 import data from "../../assets/successful.json"
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+
+const Lottie = dynamic(() => import("react-lottie"), { ssr: false });
 
 function Header() {
     return (
