@@ -11,10 +11,17 @@ import Modal from "../Dialog";
 import ButtonKerjakan from "../ButtonKerjakan";
 import ButtonExamPage from "./ButtonExamPage";
 import DescriptionModalExam from "../DescriptionModalExam";
+import {
+  getTrustedNowMs,
+  parseServerTimeMs,
+  resolveServerNowMs,
+} from "../../lib/serverClock";
 
 export default function ExamSchedule({ planId, onBack }) {
   const [schedules, setSchedules] = useState([]);
   const [isLoading, setIsloading] = useState("idle");
+  const [serverNowMs, setServerNowMs] = useState(null);
+  const [syncPerfNow, setSyncPerfNow] = useState(null);
 
   useEffect(() => {
     const getExamSchedule = async () => {
@@ -23,6 +30,15 @@ export default function ExamSchedule({ planId, onBack }) {
       await api
         .get(`/api/exam/schedule-list/${planId}`)
         .then((res) => {
+          const nowMs = resolveServerNowMs(res);
+          const perfNow =
+            typeof performance !== "undefined" ? performance.now() : null;
+
+          if (Number.isFinite(nowMs) && Number.isFinite(perfNow)) {
+            setServerNowMs(nowMs);
+            setSyncPerfNow(perfNow);
+          }
+
           setSchedules(res.data?.ujian_schedule);
         })
         .catch((err) => {
@@ -66,7 +82,11 @@ export default function ExamSchedule({ planId, onBack }) {
       </header>
 
       {schedules && schedules.length > 0 ? (
-        <ScheduleCard schedules={schedules} />
+        <ScheduleCard
+          schedules={schedules}
+          serverNowMs={serverNowMs}
+          syncPerfNow={syncPerfNow}
+        />
       ) : (
         <div className="px-5 py-4">
           {isLoading ? (
@@ -81,9 +101,11 @@ export default function ExamSchedule({ planId, onBack }) {
   );
 }
 
-function ScheduleCard({ schedules }) {
+function ScheduleCard({ schedules, serverNowMs, syncPerfNow }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
+
+  const trustedNowMs = getTrustedNowMs({ serverNowMs, syncPerfNow });
 
   const handleSelectSchedule = (schedule) => {
     setSelectedSchedule(schedule);
@@ -97,18 +119,25 @@ function ScheduleCard({ schedules }) {
         grid grid-cols-12 gap-3 px-3
       `}
       >
-        {schedules?.map((schedule, index) => (
-          <div
-            key={schedule.id}
-            className="col-span-12 md:col-span-6 xl:col-span-4"
-          >
+        {schedules?.map((schedule) => {
+          const scheduleEndTimeMs = parseServerTimeMs(schedule.end_time);
+          const isEnded =
+            Number.isFinite(scheduleEndTimeMs) &&
+            Number.isFinite(trustedNowMs) &&
+            scheduleEndTimeMs < trustedNowMs;
+
+          return (
+            <div
+              key={schedule.id}
+              className="col-span-12 md:col-span-6 xl:col-span-4"
+            >
             <div
               className={`
               flex flex-col items-start
                p-3 md:p-5
                border border-transparent
               ${
-                new Date(schedule.end_time) < new Date()
+                isEnded
                   ? "bg-slate-50/90 bg-opacity-95 cursor-not-allowed rounded-t"
                   : `bg-white
                   hover:bg-green-100/95
@@ -205,9 +234,11 @@ function ScheduleCard({ schedules }) {
             <ButtonKerjakan
               onClick={() => handleSelectSchedule(schedule)}
               schedule={schedule}
+              trustedNowMs={trustedNowMs}
             />
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
       <Modal
         isOpen={isOpen}

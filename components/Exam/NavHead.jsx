@@ -6,7 +6,11 @@ import { getResult } from "../../lib/services/getResult";
 import { toast } from "react-toastify";
 import { useExamTime } from "../../store/useExamTime";
 import { api } from "../../lib/hooks/auth";
-import { getTrustedNowMs, resolveServerNowMs } from "../../lib/serverClock";
+import {
+  getTrustedNowMs,
+  parseServerTimeMs,
+  resolveServerNowMs,
+} from "../../lib/serverClock";
 
 export default function NavHead() {
   return (
@@ -29,7 +33,7 @@ const Timer = () => {
   const { end_time, server_now_ms, sync_perf_now } = examInfo;
 
   const endTimeMs = useMemo(() => {
-    const parsed = end_time ? Date.parse(end_time) : NaN;
+    const parsed = parseServerTimeMs(end_time);
     return Number.isFinite(parsed) ? parsed : null;
   }, [end_time]);
 
@@ -64,6 +68,11 @@ const Timer = () => {
       syncPerfNow: sync_perf_now,
     });
 
+    if (!Number.isFinite(trustedNowMs)) {
+      setRemainingTimeMs(0);
+      return;
+    }
+
     setRemainingTimeMs(endTimeMs - trustedNowMs);
   }, [endTimeMs, server_now_ms, sync_perf_now]);
 
@@ -87,13 +96,23 @@ const Timer = () => {
   }, [syncServerClock]);
 
   useEffect(() => {
+    if (!Number.isFinite(server_now_ms) || !Number.isFinite(sync_perf_now)) {
+      setSubmitable(false);
+      return;
+    }
+
     const withinSubmitWindow = remainingTimeMs <= 15 * 60 * 1000;
     setSubmitable(withinSubmitWindow);
-  }, [remainingTimeMs, setSubmitable]);
+  }, [remainingTimeMs, server_now_ms, sync_perf_now, setSubmitable]);
 
   useEffect(() => {
     const sheetId = savedAnswers?.[0]?.exam_answer_sheet_id;
-    if (hasAutoSubmitted.current || !sheetId) {
+    if (
+      hasAutoSubmitted.current ||
+      !sheetId ||
+      !Number.isFinite(server_now_ms) ||
+      !Number.isFinite(sync_perf_now)
+    ) {
       return;
     }
 
@@ -103,7 +122,7 @@ const Timer = () => {
         toast.success("ujian di selesaikan");
       });
     }
-  }, [remainingTimeMs, savedAnswers]);
+  }, [remainingTimeMs, savedAnswers, server_now_ms, sync_perf_now]);
 
   const [hour, min, sec] = useMemo(() => {
     const displayMs = Math.max(0, remainingTimeMs);

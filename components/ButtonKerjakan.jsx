@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
+import { parseServerTimeMs } from "../lib/serverClock";
 
-export default function ButtonKerjakan({ onClick, schedule }) {
+export default function ButtonKerjakan({ onClick, schedule, trustedNowMs }) {
   const [countDown, setCountDown] = useState(10);
+
+  const startTimeMs = parseServerTimeMs(schedule?.start_time);
+  const endTimeMs = parseServerTimeMs(schedule?.end_time);
+  const hasTrustedNow = Number.isFinite(trustedNowMs);
 
   useEffect(() => {
     if (schedule && schedule.answer_sheets[0]?.status != 2) {
@@ -21,20 +26,30 @@ export default function ButtonKerjakan({ onClick, schedule }) {
     );
   }
 
-  if (new Date(schedule.start_time) > new Date()) {
+  if (!hasTrustedNow) {
     return (
-      <div className='text-center'>
-        <button className='w-full bg-green-600 text-white px-4 py-1 opacity-50'>
+      <div className="text-center">
+        <button className="w-full bg-gray-400 text-white px-4 py-1 opacity-50">
+          sinkronisasi waktu...
+        </button>
+      </div>
+    );
+  }
+
+  if (Number.isFinite(startTimeMs) && startTimeMs > trustedNowMs) {
+    return (
+      <div className="text-center">
+        <button className="w-full bg-green-600 text-white px-4 py-1 opacity-50">
           terjadwal
         </button>
       </div>
     );
   }
 
-  if (new Date(schedule.end_time) < new Date()) {
+  if (Number.isFinite(endTimeMs) && endTimeMs < trustedNowMs) {
     return (
-      <div className='text-center'>
-        <button className='w-full bg-red-500 text-white px-4 py-1 opacity-50'>
+      <div className="text-center">
+        <button className="w-full bg-red-500 text-white px-4 py-1 opacity-50">
           telah berakhir
         </button>
       </div>
