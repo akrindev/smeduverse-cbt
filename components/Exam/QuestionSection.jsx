@@ -130,29 +130,36 @@ const QuestionSection = () => {
     };
   };
 
+  const blockCopyEvent = (event) => {
+    event.preventDefault();
+  };
+
+  const protectedContentProps = {
+    "data-exam-protected": "true",
+    onCopy: blockCopyEvent,
+    onCut: blockCopyEvent,
+    onContextMenu: blockCopyEvent,
+    onDragStart: blockCopyEvent,
+  };
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // set initiating to false
     setInitiating(false);
 
-    const getChosenAnswer = () => {
-      const chosen = find(savedAnswers, { exam_soal_id: question?.id });
-
-      if (chosen) {
-        setChosenAnswer(chosen);
-        setContentAnswer((prev) => chosen?.content || "");
-      }
-    };
-
     if (questions && questions.length > 0) {
-      setQuestion(questions[questionIndex]);
-      getChosenAnswer();
+      const currentQuestion = questions[questionIndex] || {};
+      setQuestion(currentQuestion);
+
+      const chosen = find(savedAnswers, { exam_soal_id: currentQuestion?.id });
+      setChosenAnswer(chosen || null);
+      setContentAnswer(chosen?.content || "");
     }
 
     return () => {
       setInitiating(true);
     };
-  }, [questionIndex, question, questions, savedAnswers]);
+  }, [questionIndex, questions, savedAnswers]);
 
   // use effect to listen to content answer
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -196,22 +203,31 @@ const QuestionSection = () => {
       )}
 
       {/* pertanyaan */}
-      <div
-        className="px-4 py-3 font-roboto font-normal text-sm break-words"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-        dangerouslySetInnerHTML={dangerHTML()}
-      />
+      <div {...protectedContentProps}>
+        <div
+          className="px-4 py-3 font-roboto font-normal text-sm break-words select-none"
+          style={{
+            WebkitUserSelect: "none",
+            WebkitTouchCallout: "none",
+            userSelect: "none",
+          }}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+          dangerouslySetInnerHTML={dangerHTML()}
+        />
+      </div>
 
       <div className="border-b border-gray-100" />
 
       <div className="p-3">
         {question?.type === 1 && (
-          <QuestionOption
-            data={question.choices}
-            chosen={chosenAnswer}
-            onChosen={handleChosen}
-            isSaving={isSaving}
-          />
+          <div {...protectedContentProps}>
+            <QuestionOption
+              data={question.choices}
+              chosen={chosenAnswer}
+              onChosen={handleChosen}
+              isSaving={isSaving}
+            />
+          </div>
         )}
 
         {question?.type === 2 && (

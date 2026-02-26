@@ -7,6 +7,7 @@ import { ThreeDots } from "../Loading";
 import { useExamQuestions } from "../../store/useExamQuestions";
 import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useExamInfo } from "../../store/useExamInfo";
+import { resolveServerNowMs } from "../../lib/serverClock";
 
 export default function ButtonExamPage({ token }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +25,10 @@ export default function ButtonExamPage({ token }) {
     api
       .post(`/api/exam/paket/${token}`)
       .then((res) => {
+        const serverNowMs = resolveServerNowMs(res);
+        const syncPerfNow =
+          typeof performance !== "undefined" ? performance.now() : null;
+
         // set exam to local storage
         setQuestions(res.data.data.paket.soal);
 
@@ -32,6 +37,8 @@ export default function ButtonExamPage({ token }) {
         setExamInfo({
           start_time: res.data.data.start_time,
           end_time: res.data.data.end_time,
+          server_now_ms: serverNowMs,
+          sync_perf_now: syncPerfNow,
           mapel: res.data.data.paket.mapel.nama,
           tingkat: res.data.data.paket.tingkat_kelas,
           sheet_id: res.data.data.answer_sheets[0]?.id,

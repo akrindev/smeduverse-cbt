@@ -7,6 +7,8 @@ export const useExamInfo = create(
       examInfo: {
         start_time: null,
         end_time: null,
+        server_now_ms: null,
+        sync_perf_now: null,
         mapel: null,
         tingkat: null,
         sheet_id: null,
@@ -17,6 +19,8 @@ export const useExamInfo = create(
       setExamInfo: ({
         start_time,
         end_time,
+        server_now_ms,
+        sync_perf_now,
         mapel,
         tingkat,
         sheet_id,
@@ -28,6 +32,8 @@ export const useExamInfo = create(
             ...state.examInfo,
             start_time,
             end_time,
+            server_now_ms,
+            sync_perf_now,
             mapel,
             tingkat,
             sheet_id,
@@ -45,11 +51,24 @@ export const useExamInfo = create(
           },
         }));
       },
+
+      setServerClock: ({ server_now_ms, sync_perf_now }) => {
+        set((state) => ({
+          examInfo: {
+            ...state.examInfo,
+            server_now_ms,
+            sync_perf_now,
+          },
+        }));
+      },
+
       reset: () =>
         set(() => ({
           examInfo: {
             start_time: null,
             end_time: null,
+            server_now_ms: null,
+            sync_perf_now: null,
             mapel: null,
             tingkat: null,
             sheet_id: null,

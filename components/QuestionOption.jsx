@@ -10,8 +10,8 @@ export default function QuestionOption({
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    setSelected(chosen?.answer_chosen_id);
-  }, [chosen]);
+    setSelected(chosen?.answer_chosen_id ?? null);
+  }, [chosen?.answer_chosen_id]);
 
   const handleChange = (value) => {
     setSelected(value);
@@ -19,9 +19,22 @@ export default function QuestionOption({
   };
 
   return (
-    <div className="w-full py-5">
+    <div
+      className="w-full py-5 select-none"
+      style={{
+        WebkitUserSelect: "none",
+        WebkitTouchCallout: "none",
+        userSelect: "none",
+      }}
+      data-exam-protected="true"
+    >
       <div className="w-full mx-auto">
-        <RadioGroup value={selected} onChange={handleChange}>
+        <RadioGroup
+          value={selected}
+          onChange={handleChange}
+          disabled={isSaving}
+          className={isSaving ? "opacity-60" : "opacity-100"}
+        >
           <RadioGroup.Label className="sr-only">
             Pilihan Jawaban
           </RadioGroup.Label>
@@ -81,6 +94,11 @@ export default function QuestionOption({
                             className={`font-sm font-roboto break-words ${
                               checked ? "text-white" : "text-gray-900"
                             }`}
+                            style={{
+                              WebkitUserSelect: "none",
+                              WebkitTouchCallout: "none",
+                              userSelect: "none",
+                            }}
                             // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                             dangerouslySetInnerHTML={{
                               __html: option.answer,

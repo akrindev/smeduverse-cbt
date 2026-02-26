@@ -1,6 +1,10 @@
 import { toDate } from '../lib/todate'
 
 export default function DescriptionModalExam({ data }) {
+  if (!data?.paket) {
+    return null;
+  }
+
   return (
     <>
       <div className="flex flex-col font-nunito">

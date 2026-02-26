@@ -34,7 +34,6 @@ function MyDocument() {
           href="/assets/images/tutwurihandayani.png"
         />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="shortcut icon" href="/favicon.ico" />
         <link
           href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap"
           rel="stylesheet"
