@@ -29,7 +29,12 @@ export default function QuestionOption({
       data-exam-protected="true"
     >
       <div className="w-full mx-auto">
-        <RadioGroup value={selected} onChange={handleChange}>
+        <RadioGroup
+          value={selected}
+          onChange={handleChange}
+          disabled={isSaving}
+          className={isSaving ? "opacity-60" : "opacity-100"}
+        >
           <RadioGroup.Label className="sr-only">
             Pilihan Jawaban
           </RadioGroup.Label>
