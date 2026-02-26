@@ -5,7 +5,7 @@ import data from "../../assets/successful.json"
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-const Lottie = dynamic(() => import("react-lottie"), { ssr: false });
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 function Header() {
     return (
@@ -28,15 +28,6 @@ export default function Selesai() {
         sound.play()
     }, [])
 
-    const defaultOptions = {
-        loop: true,
-        autoplay: true,
-        animationData: data,
-        rendererSettings: {
-            preserveAspectRatio: "xMidYMid slice"
-        }
-    };
-
     return (
         <>
             <Head>
@@ -45,7 +36,7 @@ export default function Selesai() {
             <ExamBegin header={<Header />}>
                 <div className="relative flex items-center justify-center w-full">
                     <div className="bg-white rounded-md shadow-md w-full max-w-md p-5">
-                        <Lottie options={defaultOptions} height={200} width={200} />
+                        <Lottie animationData={data} loop autoplay style={{ height: 200, width: 200 }} />
 
                         <div className="flex flex-col items-center justify-center mt-5">
                             <div className="text-xl font-extrabold font-nunito">Selesai</div>

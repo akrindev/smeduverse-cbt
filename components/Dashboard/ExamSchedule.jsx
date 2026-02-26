@@ -104,8 +104,21 @@ export default function ExamSchedule({ planId, onBack }) {
 function ScheduleCard({ schedules, serverNowMs, syncPerfNow }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [fallbackNowMs, setFallbackNowMs] = useState(null);
 
   const trustedNowMs = getTrustedNowMs({ serverNowMs, syncPerfNow });
+  const effectiveNowMs = Number.isFinite(trustedNowMs)
+    ? trustedNowMs
+    : fallbackNowMs;
+
+  useEffect(() => {
+    setFallbackNowMs(Date.now());
+    const interval = setInterval(() => {
+      setFallbackNowMs(Date.now());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSelectSchedule = (schedule) => {
     setSelectedSchedule(schedule);
@@ -123,8 +136,7 @@ function ScheduleCard({ schedules, serverNowMs, syncPerfNow }) {
           const scheduleEndTimeMs = parseServerTimeMs(schedule.end_time);
           const isEnded =
             Number.isFinite(scheduleEndTimeMs) &&
-            Number.isFinite(trustedNowMs) &&
-            scheduleEndTimeMs < trustedNowMs;
+            scheduleEndTimeMs < effectiveNowMs;
 
           return (
             <div
@@ -234,7 +246,7 @@ function ScheduleCard({ schedules, serverNowMs, syncPerfNow }) {
             <ButtonKerjakan
               onClick={() => handleSelectSchedule(schedule)}
               schedule={schedule}
-              trustedNowMs={trustedNowMs}
+              trustedNowMs={effectiveNowMs}
             />
             </div>
           );
@@ -244,8 +256,18 @@ function ScheduleCard({ schedules, serverNowMs, syncPerfNow }) {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         title="Informasi Ujian"
-        description={<DescriptionModalExam data={selectedSchedule} />}
-        action={<ButtonExamPage token={selectedSchedule?.token} />}
+        description={
+          selectedSchedule ? (
+            <DescriptionModalExam data={selectedSchedule} />
+          ) : (
+            <div className="text-sm text-gray-500">memuat informasi ujian...</div>
+          )
+        }
+        action={
+          selectedSchedule ? (
+            <ButtonExamPage token={selectedSchedule.token} />
+          ) : null
+        }
       />
     </>
   );

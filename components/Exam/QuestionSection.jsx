@@ -140,7 +140,6 @@ const QuestionSection = () => {
     onCut: blockCopyEvent,
     onContextMenu: blockCopyEvent,
     onDragStart: blockCopyEvent,
-    onSelectStart: blockCopyEvent,
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -148,24 +147,19 @@ const QuestionSection = () => {
     // set initiating to false
     setInitiating(false);
 
-    const getChosenAnswer = () => {
-      const chosen = find(savedAnswers, { exam_soal_id: question?.id });
-
-      if (chosen) {
-        setChosenAnswer(chosen);
-        setContentAnswer((prev) => chosen?.content || "");
-      }
-    };
-
     if (questions && questions.length > 0) {
-      setQuestion(questions[questionIndex]);
-      getChosenAnswer();
+      const currentQuestion = questions[questionIndex] || {};
+      setQuestion(currentQuestion);
+
+      const chosen = find(savedAnswers, { exam_soal_id: currentQuestion?.id });
+      setChosenAnswer(chosen || null);
+      setContentAnswer(chosen?.content || "");
     }
 
     return () => {
       setInitiating(true);
     };
-  }, [questionIndex, question, questions, savedAnswers]);
+  }, [questionIndex, questions, savedAnswers]);
 
   // use effect to listen to content answer
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>

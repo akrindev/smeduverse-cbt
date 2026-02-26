@@ -1,16 +1,11 @@
 import { useSavedAnswers } from "../../store/useSavedAnswers";
-import { useCallback, useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useExamInfo } from "../../store/useExamInfo";
 import ExamUserInfo from "./ExamUserInfo";
 import { getResult } from "../../lib/services/getResult";
 import { toast } from "react-toastify";
 import { useExamTime } from "../../store/useExamTime";
-import { api } from "../../lib/hooks/auth";
-import {
-  getTrustedNowMs,
-  parseServerTimeMs,
-  resolveServerNowMs,
-} from "../../lib/serverClock";
+import { getTrustedNowMs, parseServerTimeMs } from "../../lib/serverClock";
 
 export default function NavHead() {
   return (
@@ -23,11 +18,12 @@ export default function NavHead() {
 const Timer = () => {
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
 
-  const [remainingTimeMs, setRemainingTimeMs] = useState(0);
+  const [remainingTimeMs, setRemainingTimeMs] = useState(null);
+  const [trustedNowMs, setTrustedNowMs] = useState(null);
+  const [fallbackNowMs, setFallbackNowMs] = useState(() => Date.now());
   const hasAutoSubmitted = useRef(false);
 
   const examInfo = useExamInfo((state) => state.examInfo);
-  const setServerClock = useExamInfo((state) => state.setServerClock);
   const setSubmitable = useExamTime((state) => state.setSubmitable);
 
   const { end_time, server_now_ms, sync_perf_now } = examInfo;
@@ -37,81 +33,61 @@ const Timer = () => {
     return Number.isFinite(parsed) ? parsed : null;
   }, [end_time]);
 
-  const syncServerClock = useCallback(async () => {
-    await api
-      .get("/api/user")
-      .then((response) => {
-        const nextServerNowMs = resolveServerNowMs(response);
-        if (!Number.isFinite(nextServerNowMs)) {
-          return;
-        }
+  const effectiveNowMs = Number.isFinite(trustedNowMs)
+    ? trustedNowMs
+    : fallbackNowMs;
 
-        const nextSyncPerfNow =
-          typeof performance !== "undefined" ? performance.now() : null;
-
-        setServerClock({
-          server_now_ms: nextServerNowMs,
-          sync_perf_now: nextSyncPerfNow,
-        });
-      })
-      .catch(() => null);
-  }, [setServerClock]);
-
-  const handleInterval = useCallback(() => {
-    if (!Number.isFinite(endTimeMs)) {
-      setRemainingTimeMs(0);
+  useEffect(() => {
+    if (!Number.isFinite(endTimeMs) || !Number.isFinite(effectiveNowMs)) {
+      setRemainingTimeMs(null);
       return;
     }
 
-    const trustedNowMs = getTrustedNowMs({
+    setRemainingTimeMs(endTimeMs - effectiveNowMs);
+  }, [endTimeMs, effectiveNowMs]);
+
+  useEffect(() => {
+    const syncedNowMs = getTrustedNowMs({
       serverNowMs: server_now_ms,
       syncPerfNow: sync_perf_now,
     });
 
-    if (!Number.isFinite(trustedNowMs)) {
-      setRemainingTimeMs(0);
-      return;
-    }
+    setTrustedNowMs(
+      Number.isFinite(syncedNowMs)
+        ? syncedNowMs
+        : Number.isFinite(server_now_ms)
+          ? server_now_ms
+          : null
+    );
+  }, [server_now_ms, sync_perf_now]);
 
-    setRemainingTimeMs(endTimeMs - trustedNowMs);
-  }, [endTimeMs, server_now_ms, sync_perf_now]);
-
-  // listening to interval event
   useEffect(() => {
-    handleInterval();
-
     const timer = setInterval(() => {
-      handleInterval();
+      setTrustedNowMs((prev) => (Number.isFinite(prev) ? prev + 1000 : prev));
+      setFallbackNowMs(Date.now());
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [handleInterval]);
+  }, []);
 
   useEffect(() => {
-    syncServerClock();
-
-    const syncTimer = setInterval(syncServerClock, 60000);
-
-    return () => clearInterval(syncTimer);
-  }, [syncServerClock]);
-
-  useEffect(() => {
-    if (!Number.isFinite(server_now_ms) || !Number.isFinite(sync_perf_now)) {
+    if (!Number.isFinite(effectiveNowMs) || !Number.isFinite(remainingTimeMs)) {
       setSubmitable(false);
       return;
     }
 
     const withinSubmitWindow = remainingTimeMs <= 15 * 60 * 1000;
     setSubmitable(withinSubmitWindow);
-  }, [remainingTimeMs, server_now_ms, sync_perf_now, setSubmitable]);
+  }, [remainingTimeMs, effectiveNowMs, setSubmitable]);
 
   useEffect(() => {
     const sheetId = savedAnswers?.[0]?.exam_answer_sheet_id;
     if (
       hasAutoSubmitted.current ||
       !sheetId ||
-      !Number.isFinite(server_now_ms) ||
-      !Number.isFinite(sync_perf_now)
+      !Number.isFinite(endTimeMs) ||
+      !Number.isFinite(effectiveNowMs) ||
+      !Number.isFinite(remainingTimeMs)
     ) {
       return;
     }
@@ -122,10 +98,11 @@ const Timer = () => {
         toast.success("ujian di selesaikan");
       });
     }
-  }, [remainingTimeMs, savedAnswers, server_now_ms, sync_perf_now]);
+  }, [remainingTimeMs, savedAnswers, effectiveNowMs, endTimeMs]);
 
   const [hour, min, sec] = useMemo(() => {
-    const displayMs = Math.max(0, remainingTimeMs);
+    const safeRemainingMs = Number.isFinite(remainingTimeMs) ? remainingTimeMs : 0;
+    const displayMs = Math.max(0, safeRemainingMs);
     const nextHour = Math.floor((displayMs / 3600000) % 24);
     const nextMin = Math.floor((displayMs / 60000) % 60);
     const nextSec = Math.floor((displayMs / 1000) % 60);
@@ -140,7 +117,9 @@ const Timer = () => {
         hour === 0 && min <= 5 ? "bg-red-700 text-white" : "bg-white"
       }`}
     >
-      sisa waktu: {`${hour}j ${min}m ${sec}d`}
+      {Number.isFinite(remainingTimeMs)
+        ? `sisa waktu: ${hour}j ${min}m ${sec}d`
+        : "sisa waktu: sinkronisasi waktu..."}
     </div>
   );
 };

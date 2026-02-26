@@ -10,8 +10,8 @@ export default function QuestionOption({
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    setSelected(chosen?.answer_chosen_id);
-  }, [chosen]);
+    setSelected(chosen?.answer_chosen_id ?? null);
+  }, [chosen?.answer_chosen_id]);
 
   const handleChange = (value) => {
     setSelected(value);

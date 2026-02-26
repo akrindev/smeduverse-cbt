@@ -5,25 +5,14 @@ export default function Modal({ isOpen, setIsOpen, title, description, action })
 
   return (
     <>
-      <Transition show={isOpen} as={Fragment}>
+      <Transition show={Boolean(isOpen)} as={Fragment}>
         <Dialog
           as="div"
-          className="fixed inset-0 z-40 overflow-y-auto"
+          className="fixed inset-0 z-50 overflow-y-auto"
           onClose={() => setIsOpen(false)}
         >
-            <Dialog.Overlay className="fixed inset-0 bg-black opacity-80 filter backdrop-blur-lg" />
-          <div className="min-h-screen px-3 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Dialog.Overlay className="fixed inset-0" />
-            </Transition.Child>
+          <div className="fixed inset-0 z-40 bg-black opacity-80 filter backdrop-blur-lg" />
+          <div className="relative z-50 min-h-screen px-3 text-center">
 
             {/* This element is to trick the browser into centering the modal contents. */}
             <span

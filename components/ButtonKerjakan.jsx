@@ -6,7 +6,7 @@ export default function ButtonKerjakan({ onClick, schedule, trustedNowMs }) {
 
   const startTimeMs = parseServerTimeMs(schedule?.start_time);
   const endTimeMs = parseServerTimeMs(schedule?.end_time);
-  const hasTrustedNow = Number.isFinite(trustedNowMs);
+  const hasNowMs = Number.isFinite(trustedNowMs);
 
   useEffect(() => {
     if (schedule && schedule.answer_sheets[0]?.status != 2) {
@@ -26,7 +26,7 @@ export default function ButtonKerjakan({ onClick, schedule, trustedNowMs }) {
     );
   }
 
-  if (!hasTrustedNow) {
+  if (!hasNowMs) {
     return (
       <div className="text-center">
         <button className="w-full bg-gray-400 text-white px-4 py-1 opacity-50">

@@ -115,12 +115,13 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                 className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
                   pathname === "/dashboard" && "bg-gray-900"
                 }`}>
-                <Link href={`/dashboard`} legacyBehavior>
-                  <a
-                    className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
-                      pathname === "/" && "hover:text-gray-200"
-                    }`}>
-                    <div className='flex items-center'>
+                <Link
+                  href={`/dashboard`}
+                  className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
+                    pathname === "/" && "hover:text-gray-200"
+                  }`}
+                >
+                  <div className='flex items-center'>
                       <svg
                         className='flex-shrink-0 h-6 w-6'
                         viewBox='0 0 24 24'>
@@ -147,7 +148,6 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                         Dashboard
                       </span>
                     </div>
-                  </a>
                 </Link>
               </li>
               {/* Ujian Susulan */}
@@ -155,12 +155,13 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                 className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
                   pathname === "/ujian-susulan" && "bg-gray-900"
                 }`}>
-                <Link href={`/ujian-susulan`} legacyBehavior>
-                  <a
-                    className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
-                      pathname === "/" && "hover:text-gray-200"
-                    }`}>
-                    <div className='flex items-center'>
+                <Link
+                  href={`/ujian-susulan`}
+                  className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
+                    pathname === "/" && "hover:text-gray-200"
+                  }`}
+                >
+                  <div className='flex items-center'>
                       <svg className='shrink-0 h-6 w-6' viewBox='0 0 24 24'>
                         <path
                           className={`fill-current text-slate-600 ${
@@ -191,7 +192,6 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                         Ujian Susulan
                       </span>
                     </div>
-                  </a>
                 </Link>
               </li>
             </ul>
