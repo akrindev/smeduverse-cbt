@@ -138,6 +138,7 @@ export default function Login() {
                                         mr-1 mb-1 w-full ease-linear transition-all duration-150 
                                         disabled:opacity-75`}
                       type="submit"
+                      aria-label={status === "loading" ? "Memproses login" : undefined}
                       disabled={status === "loading"}
                     >
                       {status === "loading" ? <ThreeDots /> : "Masuk"}
