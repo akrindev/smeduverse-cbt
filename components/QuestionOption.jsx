@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { RadioGroup } from "@headlessui/react";
+import { Check } from "lucide-react";
 
 export default function QuestionOption({
   data: options,
@@ -64,7 +65,11 @@ export default function QuestionOption({
                     <div className="flex items-start space-x-2 w-full">
                       {checked ? (
                         <div className="flex items-start text-white justify-start">
-                          <CheckIcon className="w-4 h-4" />
+                          <Check
+                            size={16}
+                            strokeWidth={1.5}
+                            aria-hidden="true"
+                          />
                         </div>
                       ) : (
                         <div className="flex items-start justify-start">
@@ -115,21 +120,5 @@ export default function QuestionOption({
         </RadioGroup>
       </div>
     </div>
-  );
-}
-
-function CheckIcon(props) {
-  return (
-    // biome-ignore lint/a11y/noSvgWithoutTitle: <explanation>
-    <svg viewBox="0 0 24 24" fill="none" {...props}>
-      <circle cx={12} cy={12} r={12} fill="#fff" opacity="0.2" />
-      <path
-        d="M7 13l3 3 7-7"
-        stroke="#fff"
-        strokeWidth={1.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
