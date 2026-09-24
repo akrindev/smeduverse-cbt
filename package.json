@@ -36,12 +36,12 @@
     "eslint-config-next": "16.1.6"
   },
   "browserslist": [
-    "> 0.1%",
-    "chrome >= 49",
-    "samsung >= 3.0",
-    "firefox >= 49",
-    "android >= 4",
-    "and_uc >= 9.9"
+    "chrome >= 80",
+    "edge >= 80",
+    "firefox >= 73",
+    "safari >= 13",
+    "ios_saf >= 13",
+    "and_chr >= 80"
   ],
   "postcss": {
     "plugins": {
