@@ -2,26 +2,31 @@ import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useExamInfo } from "../../store/useExamInfo";
 import ExamUserInfo from "./ExamUserInfo";
-import { getResult } from "../../lib/services/getResult";
+import { submitExam } from "../../lib/services/submitExam";
+import { useAnswerSync } from "../../lib/hooks/useAnswerSync";
 import { toast } from "react-toastify";
 import { useExamTime } from "../../store/useExamTime";
 import { getTrustedNowMs, parseServerTimeMs } from "../../lib/serverClock";
 
-export default function NavHead() {
+const noop = () => {};
+
+export default function NavHead({ allowExit } = {}) {
   return (
     <ExamUserInfo>
-      <Timer />
+      <Timer allowExit={allowExit} />
     </ExamUserInfo>
   );
 }
 
-const Timer = () => {
+const Timer = ({ allowExit } = {}) => {
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
+  const { flushAnswers } = useAnswerSync();
 
   const [remainingTimeMs, setRemainingTimeMs] = useState(null);
   const [trustedNowMs, setTrustedNowMs] = useState(null);
   const [fallbackNowMs, setFallbackNowMs] = useState(() => Date.now());
   const hasAutoSubmitted = useRef(false);
+  const isAutoSubmitting = useRef(false);
 
   const examInfo = useExamInfo((state) => state.examInfo);
   const setSubmitable = useExamTime((state) => state.setSubmitable);
@@ -84,6 +89,7 @@ const Timer = () => {
     const sheetId = savedAnswers?.[0]?.exam_answer_sheet_id;
     if (
       hasAutoSubmitted.current ||
+      isAutoSubmitting.current ||
       !sheetId ||
       !Number.isFinite(endTimeMs) ||
       !Number.isFinite(effectiveNowMs) ||
@@ -93,12 +99,31 @@ const Timer = () => {
     }
 
     if (remainingTimeMs <= 2000) {
-      hasAutoSubmitted.current = true;
-      getResult(sheetId).then(() => {
-        toast.success("ujian di selesaikan");
-      });
+      isAutoSubmitting.current = true;
+      submitExam({
+        sheetId,
+        flushAnswers,
+        allowExit: typeof allowExit === "function" ? allowExit : noop,
+      })
+        .then((result) => {
+          if (result.submitted) {
+            hasAutoSubmitted.current = true;
+            toast.success("ujian di selesaikan");
+          }
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          isAutoSubmitting.current = false;
+        });
     }
-  }, [remainingTimeMs, savedAnswers, effectiveNowMs, endTimeMs]);
+  }, [
+    allowExit,
+    effectiveNowMs,
+    endTimeMs,
+    flushAnswers,
+    remainingTimeMs,
+    savedAnswers,
+  ]);
 
   const [hour, min, sec] = useMemo(() => {
     const safeRemainingMs = Number.isFinite(remainingTimeMs) ? remainingTimeMs : 0;
@@ -108,8 +133,6 @@ const Timer = () => {
     const nextSec = Math.floor((displayMs / 1000) % 60);
     return [nextHour, nextMin, nextSec];
   }, [remainingTimeMs]);
-
-
 
   return (
     <div

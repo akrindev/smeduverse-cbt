@@ -10,6 +10,7 @@ import { useExamQuestions } from "../../store/useExamQuestions";
 import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useExamInfo } from "../../store/useExamInfo";
 import QuestionComponent from "../../components/Exam/QuestionComponent";
+import { AnswerSyncProvider } from "../../lib/hooks/useAnswerSync";
 
 export default function ExamIndex() {
   const questions = useExamQuestions((state) => state.questions);
@@ -145,9 +146,11 @@ export default function ExamIndex() {
       <Head>
         <title>Mengerjakan Ujian</title>
       </Head>
-      <ExamBegin header={<NavHead examInfo={examInfo} />}>
-        <QuestionComponent />
-      </ExamBegin>
+      <AnswerSyncProvider>
+        <ExamBegin header={<NavHead examInfo={examInfo} />}>
+          <QuestionComponent />
+        </ExamBegin>
+      </AnswerSyncProvider>
       <ToastContainer />
     </>
   );

@@ -3,15 +3,11 @@ import { ThreeDots } from "../Loading";
 import QuestionOption from "../QuestionOption";
 import { useExamQuestions } from "../../store/useExamQuestions";
 import { useSavedAnswers } from "../../store/useSavedAnswers";
-import { api } from "../../lib/hooks/auth";
+import { useAnswerSync } from "../../lib/hooks/useAnswerSync";
 import find from "lodash/find";
-import debounce from "lodash/debounce";
-
-import { toast } from "react-toastify";
 
 const QuestionSection = () => {
   const [question, setQuestion] = useState({});
-  const [isSaving, setIsSaving] = useState(false);
   const [chosenAnswer, setChosenAnswer] = useState(null);
   const [initiating, setInitiating] = useState(true);
   const [contentAnswer, setContentAnswer] = useState("");
@@ -21,108 +17,88 @@ const QuestionSection = () => {
   const setQuestionIndex = useExamQuestions((state) => state.setQuestionIndex);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
   const updateChosenAnswer = useSavedAnswers((state) => state.setChosenAnswer);
+  const { entries, enqueueAnswer } = useAnswerSync();
 
-  const handleChosen = async (value) => {
-    setIsSaving(true);
-    // update saved answers
-    const answer = savedAnswers.find(
-      (item) => item.exam_soal_id === question.id
-    );
-    answer.answer_chosen_id = value;
+  const handleChosen = useCallback(
+    (value) => {
+      const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id);
+      if (!answer) {
+        return;
+      }
 
-    try {
-      await api
-        .patch("/api/exam/save-answer", {
-          exam_answer_sheet_id: answer.exam_answer_sheet_id,
-          exam_soal_id: answer.exam_soal_id,
-          answer_chosen_id: value,
-        })
-        .then((res) => {
-          if (res.status === 200) {
-            updateChosenAnswer(answer);
-            // console.log(answer);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          toast.error("jawaban gagal disimpan, ulangi kembali");
-        })
-        .finally(() => {
-          setIsSaving(false);
-        });
-    } catch (error) {
-      console.log("catch", error);
-    }
-  };
+      const nextAnswer = { ...answer, answer_chosen_id: value };
+      updateChosenAnswer(nextAnswer);
+      enqueueAnswer({
+        exam_answer_sheet_id: answer.exam_answer_sheet_id,
+        exam_soal_id: answer.exam_soal_id,
+        answer_chosen_id: value,
+      });
+    },
+    [enqueueAnswer, question.id, savedAnswers, updateChosenAnswer]
+  );
+
+  const handleContentChange = useCallback(
+    (value) => {
+      setContentAnswer(value);
+
+      const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id);
+      if (answer) {
+        updateChosenAnswer({ ...answer, content: value });
+      }
+    },
+    [question.id, savedAnswers, updateChosenAnswer]
+  );
 
   const handleContentAnswer = useCallback(
     (value) => {
-      setIsSaving(true);
-
-      // update saved answers
-      const answer = find(
-        savedAnswers,
-        (item) => item.exam_soal_id === question.id
-      );
-      answer.content = value;
-
-      try {
-        api
-          .patch("/api/exam/save-answer", {
-            exam_answer_sheet_id: answer.exam_answer_sheet_id,
-            exam_soal_id: answer.exam_soal_id,
-            content: value,
-          })
-          .then((res) => {
-            if (res.status === 200) {
-              updateChosenAnswer(answer);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            toast.error("jawaban gagal disimpan, ulangi kembali");
-          })
-          .finally(() => {
-            setIsSaving(false);
-          });
-      } catch (error) {
-        console.log("catch", error);
+      const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id);
+      if (!answer) {
+        return;
       }
-    },
-    [savedAnswers, question, updateChosenAnswer]
-  );
 
-  const handleRagu = async (value) => {
-    setIsSaving(true);
-    // update saved answers
-    const answer = find(
-      savedAnswers,
-      (item) => item.exam_soal_id === question.id
-    );
-    answer.ragu = answer.ragu === 1 ? 0 : 1;
-
-    await api
-      .patch("/api/exam/ragu-answer", {
+      enqueueAnswer({
         exam_answer_sheet_id: answer.exam_answer_sheet_id,
         exam_soal_id: answer.exam_soal_id,
-        ragu: answer.ragu,
-      })
-      .then((res) => {
-        if (res.status === 200) {
-          updateChosenAnswer(answer);
-        }
-      })
-      .catch((err) => console.log(err))
-      .finally(() => {
-        setIsSaving(false);
+        content: value,
       });
-  };
+    },
+    [enqueueAnswer, question.id, savedAnswers]
+  );
+
+  const handleRagu = useCallback(() => {
+    const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id);
+    if (!answer) {
+      return;
+    }
+
+    const ragu = answer.ragu === 1 ? 0 : 1;
+    const nextAnswer = { ...answer, ragu };
+    updateChosenAnswer(nextAnswer);
+    enqueueAnswer({
+      exam_answer_sheet_id: answer.exam_answer_sheet_id,
+      exam_soal_id: answer.exam_soal_id,
+      ragu,
+    });
+  }, [enqueueAnswer, question.id, savedAnswers, updateChosenAnswer]);
 
   const isRagu = useCallback(
     (chosenId) =>
       find(savedAnswers, (item) => item.exam_soal_id === chosenId)?.ragu === 1,
     [savedAnswers]
   );
+
+  const questionEntry = entries.find(
+    (entry) => entry.payload.exam_soal_id === question.id
+  );
+  const syncStatus = questionEntry?.status;
+  const isSynchronizing = syncStatus === "saving" || syncStatus === "syncing";
+
+  const syncLabel = {
+    saving: "menyimpan jawaban",
+    syncing: "menyinkronkan jawaban",
+    queued: "jawaban menunggu sinkronisasi",
+    failed: "jawaban gagal disinkronkan",
+  }[syncStatus];
 
   const dangerHTML = () => {
     return {
@@ -161,17 +137,13 @@ const QuestionSection = () => {
     };
   }, [questionIndex, questions, savedAnswers]);
 
-  // use effect to listen to content answer
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // Queue text answers after the existing one-second input delay.
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (contentAnswer) {
-        handleContentAnswer(contentAnswer);
-      }
+      handleContentAnswer(contentAnswer);
     }, 1000);
     return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentAnswer]);
+  }, [contentAnswer, handleContentAnswer]);
 
   return (
     <div className="bg-white rounded shadow">
@@ -182,9 +154,9 @@ const QuestionSection = () => {
             Soal {questionIndex + 1 || 0} / {questions.length || 0}
           </div>
         )}
-        {isSaving && (
+        {syncLabel && (
           <div className="text-xs rounded-lg text-green-800 bg-green-100 flex items-center justify-center space-x-2 py-1 px-3">
-            <ThreeDots /> menyimpan jawaban
+            {isSynchronizing && <ThreeDots />} {syncLabel}
           </div>
         )}
       </div>
@@ -225,7 +197,6 @@ const QuestionSection = () => {
               data={question.choices}
               chosen={chosenAnswer}
               onChosen={handleChosen}
-              isSaving={isSaving}
             />
           </div>
         )}
@@ -235,14 +206,11 @@ const QuestionSection = () => {
             {/* styling teaxtare */}
             <textarea
               className={`w-full h-40 p-3 rounded-lg border ${
-                isSaving ? "border-green-200" : "border-sky-400"
+                isSynchronizing ? "border-green-200" : "border-sky-400"
               }`}
               placeholder="Tulis jawabanmu disini"
               value={contentAnswer}
-              onChange={(e) => {
-                setContentAnswer(e.target.value);
-                // handleContentAnswer(e.target.value);
-              }}
+              onChange={(e) => handleContentChange(e.target.value)}
             />
           </div>
         )}

@@ -1,18 +1,19 @@
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import NavButirSoal from "./NavButirSoal";
 import find from "lodash/find";
 import { useExamQuestions } from "../../store/useExamQuestions";
 import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useExamInfo } from "../../store/useExamInfo";
 import Modal from "../Dialog";
-
-import { getResult } from "../../lib/services/getResult";
+import { submitExam } from "../../lib/services/submitExam";
+import { useAnswerSync } from "../../lib/hooks/useAnswerSync";
 import { loaderImg } from "../../lib/loaderImg";
 import filter from "lodash/filter";
 import { useExamTime } from "../../store/useExamTime";
 
-const NavigasiSoal = () => {
+const NavigasiSoal = ({ allowExit } = {}) => {
   const questions = useExamQuestions((state) => state.questions);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
   const examInfo = useExamInfo((state) => state.examInfo);
@@ -22,8 +23,16 @@ const NavigasiSoal = () => {
   const [initiating, setInitiating] = useState(true);
 
   const [canSubmit, setCanSubmit] = useState(false);
+  const { pendingCount, flushAnswers } = useAnswerSync();
 
   const submitable = useExamTime((state) => state.submitable);
+
+  const handleSyncRequired = useCallback(() => {
+    toast.info(
+      "Jawaban masih menunggu sinkronisasi. Silakan coba lagi sebentar."
+    );
+    void flushAnswers();
+  }, [flushAnswers]);
 
   const stopExam = () => {
     if (canSubmit && !submitable) {
@@ -99,6 +108,11 @@ const NavigasiSoal = () => {
                 </span>
               )}
             </div>
+            {pendingCount > 0 && (
+              <p className="mt-2 text-right text-xs text-amber-700">
+                Jawaban masih menunggu sinkronisasi.
+              </p>
+            )}
             <div className="mt-3">
               <div className="flex flex-col items-start">
                 <div className="flex items-center space-x-3">
@@ -136,7 +150,13 @@ const NavigasiSoal = () => {
           description={<ChosenAnswer answers={savedAnswers} />}
           action={
             savedAnswers && (
-              <ButtonResult sheetId={savedAnswers[0]?.exam_answer_sheet_id} />
+              <ButtonResult
+                sheetId={savedAnswers[0]?.exam_answer_sheet_id}
+                pendingCount={pendingCount}
+                flushAnswers={flushAnswers}
+                onSyncRequired={handleSyncRequired}
+                allowExit={allowExit}
+              />
             )
           }
         />
@@ -145,13 +165,36 @@ const NavigasiSoal = () => {
   );
 };
 
-function ButtonResult({ sheetId }) {
+function ButtonResult({
+  sheetId,
+  pendingCount,
+  flushAnswers,
+  onSyncRequired,
+  allowExit,
+}) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = async () => {
+    if (pendingCount > 0) {
+      onSyncRequired?.();
+      return;
+    }
+
     setIsLoading(true);
 
-    await getResult(sheetId).finally(() => setIsLoading(false));
+    try {
+      await submitExam({
+        sheetId,
+        flushAnswers,
+        allowExit,
+        onBlocked: onSyncRequired,
+      });
+    } catch (error) {
+      // getResult owns the user-facing error toast.
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -161,7 +204,7 @@ function ButtonResult({ sheetId }) {
         className={
           "bg-green-500 text-white rounded-md px-4 py-1 disabled:opacity-60"
         }
-        disabled={isLoading}
+        disabled={isLoading || pendingCount > 0}
         onClick={handleClick}
       >
         {isLoading ? "Mengumpulkan" : "Kumpulkan"}
