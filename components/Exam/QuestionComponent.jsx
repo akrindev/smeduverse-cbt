@@ -1,7 +1,7 @@
 import QuestionSection from "./QuestionSection";
 import NavigasiSoal from "./NavigasiSoal";
 
-const QuestionComponent = () => {
+const QuestionComponent = ({ allowExit } = {}) => {
   const absorbEvent = (event) => {
 //    var e = event || window.event;
 //    e.preventDefault && e.preventDefault()
@@ -25,7 +25,7 @@ const QuestionComponent = () => {
           <QuestionSection />
         </div>
         {/* navigasi soal */}
-        <NavigasiSoal />
+        <NavigasiSoal allowExit={allowExit} />
       </div>
       <div className='flex items-center justify-center text-center mt-14 text-warmGray-500'>
         <strong>Smeducative</strong>

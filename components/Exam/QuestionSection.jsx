@@ -6,21 +6,47 @@ import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useAnswerSync } from "../../lib/hooks/useAnswerSync";
 import find from "lodash/find";
 
+const getQuestionEntry = (entries, questionId) => {
+  const statusPriority = {
+    failed: 4,
+    queued: 3,
+    syncing: 2,
+    saving: 1,
+  };
+
+  return entries
+    .filter((entry) => entry.payload.exam_soal_id === questionId)
+    .sort(
+      (left, right) =>
+        (statusPriority[right.status] ?? 0) - (statusPriority[left.status] ?? 0)
+    )[0];
+};
+
 const QuestionSection = () => {
   const [question, setQuestion] = useState({});
   const [chosenAnswer, setChosenAnswer] = useState(null);
   const [initiating, setInitiating] = useState(true);
   const [contentAnswer, setContentAnswer] = useState("");
+  const [syncClock, setSyncClock] = useState(() => Date.now());
 
   const questions = useExamQuestions((state) => state.questions);
   const questionIndex = useExamQuestions((state) => state.questionIndex);
   const setQuestionIndex = useExamQuestions((state) => state.setQuestionIndex);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
   const updateChosenAnswer = useSavedAnswers((state) => state.setChosenAnswer);
-  const { entries, enqueueAnswer } = useAnswerSync();
+  const {
+    entries,
+    enqueueAnswer,
+    isFinalizing,
+    canEditAnswers,
+  } = useAnswerSync();
 
   const handleChosen = useCallback(
     (value) => {
+      if (isFinalizing || !canEditAnswers()) {
+        return;
+      }
+
       const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id);
       if (!answer) {
         return;
@@ -28,44 +54,87 @@ const QuestionSection = () => {
 
       const nextAnswer = { ...answer, answer_chosen_id: value };
       updateChosenAnswer(nextAnswer);
-      enqueueAnswer({
-        exam_answer_sheet_id: answer.exam_answer_sheet_id,
-        exam_soal_id: answer.exam_soal_id,
-        answer_chosen_id: value,
-      });
+      enqueueAnswer(
+        {
+          exam_answer_sheet_id: answer.exam_answer_sheet_id,
+          exam_soal_id: answer.exam_soal_id,
+          answer_chosen_id: value,
+        },
+        { operation: "save" }
+      );
     },
-    [enqueueAnswer, question.id, savedAnswers, updateChosenAnswer]
-  );
-
-  const handleContentChange = useCallback(
-    (value) => {
-      setContentAnswer(value);
-
-      const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id);
-      if (answer) {
-        updateChosenAnswer({ ...answer, content: value });
-      }
-    },
-    [question.id, savedAnswers, updateChosenAnswer]
+    [
+      canEditAnswers,
+      enqueueAnswer,
+      isFinalizing,
+      question.id,
+      savedAnswers,
+      updateChosenAnswer,
+    ]
   );
 
   const handleContentAnswer = useCallback(
     (value) => {
+      if (isFinalizing || !canEditAnswers()) {
+        return;
+      }
+
       const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id);
       if (!answer) {
         return;
       }
 
-      enqueueAnswer({
-        exam_answer_sheet_id: answer.exam_answer_sheet_id,
-        exam_soal_id: answer.exam_soal_id,
-        content: value,
-      });
+      // Queue immediately, but defer the sender until the one-second debounce.
+      enqueueAnswer(
+        {
+          exam_answer_sheet_id: answer.exam_answer_sheet_id,
+          exam_soal_id: answer.exam_soal_id,
+          content: value,
+        },
+        { operation: "save", readyAt: Date.now() + 1_000 }
+      );
     },
-    [enqueueAnswer, question.id, savedAnswers]
+    [
+      canEditAnswers,
+      enqueueAnswer,
+      isFinalizing,
+      question.id,
+      savedAnswers,
+    ]
+  );
+
+  const handleContentChange = useCallback(
+    (value) => {
+      if (isFinalizing || !canEditAnswers()) {
+        return;
+      }
+
+      setContentAnswer(value);
+
+      const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id);
+      if (!answer) {
+        return;
+      }
+
+      const nextAnswer = { ...answer, content: value };
+      updateChosenAnswer(nextAnswer);
+      handleContentAnswer(value);
+    },
+    [
+      canEditAnswers,
+      handleContentAnswer,
+      isFinalizing,
+      question.id,
+      savedAnswers,
+      updateChosenAnswer,
+    ]
   );
 
   const handleRagu = useCallback(() => {
+    if (isFinalizing || !canEditAnswers()) {
+      return;
+    }
+
     const answer = find(savedAnswers, (item) => item.exam_soal_id === question.id);
     if (!answer) {
       return;
@@ -74,12 +143,22 @@ const QuestionSection = () => {
     const ragu = answer.ragu === 1 ? 0 : 1;
     const nextAnswer = { ...answer, ragu };
     updateChosenAnswer(nextAnswer);
-    enqueueAnswer({
-      exam_answer_sheet_id: answer.exam_answer_sheet_id,
-      exam_soal_id: answer.exam_soal_id,
-      ragu,
-    });
-  }, [enqueueAnswer, question.id, savedAnswers, updateChosenAnswer]);
+    enqueueAnswer(
+      {
+        exam_answer_sheet_id: answer.exam_answer_sheet_id,
+        exam_soal_id: answer.exam_soal_id,
+        ragu,
+      },
+      { operation: "ragu" }
+    );
+  }, [
+    canEditAnswers,
+    enqueueAnswer,
+    isFinalizing,
+    question.id,
+    savedAnswers,
+    updateChosenAnswer,
+  ]);
 
   const isRagu = useCallback(
     (chosenId) =>
@@ -87,18 +166,44 @@ const QuestionSection = () => {
     [savedAnswers]
   );
 
-  const questionEntry = entries.find(
-    (entry) => entry.payload.exam_soal_id === question.id
-  );
+  const questionEntry = getQuestionEntry(entries, question.id);
   const syncStatus = questionEntry?.status;
+  const isDeferred = Boolean(
+    questionEntry?.readyAt && questionEntry.readyAt > syncClock
+  );
   const isSynchronizing = syncStatus === "saving" || syncStatus === "syncing";
+  const isTerminalQueued =
+    syncStatus === "queued" && questionEntry?.attempts >= 3;
+  const isRetrying =
+    questionEntry?.attempts > 1 &&
+    !isTerminalQueued &&
+    (syncStatus === "saving" || syncStatus === "syncing" || syncStatus === "queued");
 
-  const syncLabel = {
-    saving: "menyimpan jawaban",
-    syncing: "menyinkronkan jawaban",
-    queued: "jawaban menunggu sinkronisasi",
-    failed: "jawaban gagal disinkronkan",
-  }[syncStatus];
+  const syncLabel = isDeferred
+    ? "jawaban menunggu jeda sinkronisasi"
+    : isRetrying
+      ? "mengulang sinkronisasi..."
+      : syncStatus === "saving"
+        ? "menyimpan jawaban"
+        : syncStatus === "syncing"
+          ? "menyinkronkan jawaban"
+          : isTerminalQueued
+            ? "sinkronisasi tertunda — coba lagi"
+            : syncStatus === "queued"
+              ? "jawaban menunggu sinkronisasi"
+              : syncStatus === "failed"
+                ? "jawaban gagal disinkronkan"
+                : null;
+  const syncError =
+    syncStatus === "failed" && questionEntry?.lastError
+      ? `: ${questionEntry.lastError}`
+      : "";
+  const syncTone =
+    syncStatus === "failed"
+      ? "text-red-800 bg-red-100"
+      : isDeferred || syncStatus === "queued" || isTerminalQueued
+        ? "text-amber-900 bg-amber-100"
+        : "text-blue-800 bg-blue-100";
 
   const dangerHTML = () => {
     return {
@@ -117,6 +222,11 @@ const QuestionSection = () => {
     onContextMenu: blockCopyEvent,
     onDragStart: blockCopyEvent,
   };
+
+  useEffect(() => {
+    const clock = setInterval(() => setSyncClock(Date.now()), 1_000);
+    return () => clearInterval(clock);
+  }, []);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
@@ -137,13 +247,14 @@ const QuestionSection = () => {
     };
   }, [questionIndex, questions, savedAnswers]);
 
-  // Queue text answers after the existing one-second input delay.
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      handleContentAnswer(contentAnswer);
-    }, 1000);
-    return () => clearTimeout(timeout);
-  }, [contentAnswer, handleContentAnswer]);
+  const changeQuestionIndex = useCallback(
+    (nextIndex) => {
+      if (canEditAnswers()) {
+        setQuestionIndex(nextIndex);
+      }
+    },
+    [canEditAnswers, setQuestionIndex]
+  );
 
   return (
     <div className="bg-white rounded shadow">
@@ -155,8 +266,11 @@ const QuestionSection = () => {
           </div>
         )}
         {syncLabel && (
-          <div className="text-xs rounded-lg text-green-800 bg-green-100 flex items-center justify-center space-x-2 py-1 px-3">
+          <div
+            className={`text-xs rounded-lg flex items-center justify-center space-x-2 py-1 px-3 ${syncTone}`}
+          >
             {isSynchronizing && <ThreeDots />} {syncLabel}
+            {syncError}
           </div>
         )}
       </div>
@@ -197,6 +311,7 @@ const QuestionSection = () => {
               data={question.choices}
               chosen={chosenAnswer}
               onChosen={handleChosen}
+              isSaving={isFinalizing}
             />
           </div>
         )}
@@ -207,9 +322,10 @@ const QuestionSection = () => {
             <textarea
               className={`w-full h-40 p-3 rounded-lg border ${
                 isSynchronizing ? "border-green-200" : "border-sky-400"
-              }`}
+              } disabled:opacity-60`}
               placeholder="Tulis jawabanmu disini"
               value={contentAnswer}
+              disabled={isFinalizing}
               onChange={(e) => handleContentChange(e.target.value)}
             />
           </div>
@@ -221,9 +337,9 @@ const QuestionSection = () => {
         <div className="flex items-center justify-between">
           {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
           <button
-            onClick={() => setQuestionIndex(questionIndex - 1)}
+            onClick={() => changeQuestionIndex(questionIndex - 1)}
             className="p-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50"
-            disabled={questionIndex === 0}
+            disabled={isFinalizing || questionIndex === 0}
           >
             Soal sebelumnya
           </button>
@@ -233,16 +349,17 @@ const QuestionSection = () => {
               questions && isRagu(question.id)
                 ? "bg-yellow-500 text-gray-100"
                 : "bg-white text-yellow-500"
-            } border border-yellow-600  text-xs rounded-md`}
+            } border border-yellow-600  text-xs rounded-md disabled:opacity-50`}
             onClick={handleRagu}
+            disabled={isFinalizing}
           >
             Ragu-ragu
           </button>
           {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
           <button
-            onClick={() => setQuestionIndex(questionIndex + 1)}
+            onClick={() => changeQuestionIndex(questionIndex + 1)}
             className="px-3 py-2 bg-gray-100 border border-gray-400 text-xs rounded-md disabled:opacity-50"
-            disabled={questions && questionIndex === questions.length - 1}
+            disabled={isFinalizing || (questions && questionIndex === questions.length - 1)}
           >
             Soal berikutnya
           </button>

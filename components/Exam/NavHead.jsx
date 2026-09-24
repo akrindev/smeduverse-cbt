@@ -8,8 +8,6 @@ import { toast } from "react-toastify";
 import { useExamTime } from "../../store/useExamTime";
 import { getTrustedNowMs, parseServerTimeMs } from "../../lib/serverClock";
 
-const noop = () => {};
-
 export default function NavHead({ allowExit } = {}) {
   return (
     <ExamUserInfo>
@@ -20,7 +18,13 @@ export default function NavHead({ allowExit } = {}) {
 
 const Timer = ({ allowExit } = {}) => {
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
-  const { flushAnswers } = useAnswerSync();
+  const {
+    retryAnswers,
+    isFinalizing,
+    beginFinalization,
+    endFinalization,
+    clearAnswers,
+  } = useAnswerSync();
 
   const [remainingTimeMs, setRemainingTimeMs] = useState(null);
   const [trustedNowMs, setTrustedNowMs] = useState(null);
@@ -90,6 +94,7 @@ const Timer = ({ allowExit } = {}) => {
     if (
       hasAutoSubmitted.current ||
       isAutoSubmitting.current ||
+      isFinalizing ||
       !sheetId ||
       !Number.isFinite(endTimeMs) ||
       !Number.isFinite(effectiveNowMs) ||
@@ -102,8 +107,11 @@ const Timer = ({ allowExit } = {}) => {
       isAutoSubmitting.current = true;
       submitExam({
         sheetId,
-        flushAnswers,
-        allowExit: typeof allowExit === "function" ? allowExit : noop,
+        flushAnswers: retryAnswers,
+        allowExit,
+        onStart: beginFinalization,
+        onFinish: endFinalization,
+        clearAnswers,
       })
         .then((result) => {
           if (result.submitted) {
@@ -118,10 +126,14 @@ const Timer = ({ allowExit } = {}) => {
     }
   }, [
     allowExit,
+    beginFinalization,
+    clearAnswers,
     effectiveNowMs,
+    endFinalization,
     endTimeMs,
-    flushAnswers,
+    isFinalizing,
     remainingTimeMs,
+    retryAnswers,
     savedAnswers,
   ]);
 

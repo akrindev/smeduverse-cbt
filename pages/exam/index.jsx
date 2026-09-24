@@ -17,6 +17,8 @@ export default function ExamIndex() {
   const examInfo = useExamInfo((state) => state.examInfo);
   const setWarn = useExamInfo((state) => state.setWarn);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
+  // Task 5 replaces this explicit temporary seam with ExamSecurityProvider's allowExit.
+  const temporaryAllowExit = useCallback(() => {}, []);
 
   useEffect(() => {
     if (questions.length <= 0 && savedAnswers.length <= 0) {
@@ -147,8 +149,10 @@ export default function ExamIndex() {
         <title>Mengerjakan Ujian</title>
       </Head>
       <AnswerSyncProvider>
-        <ExamBegin header={<NavHead examInfo={examInfo} />}>
-          <QuestionComponent />
+        <ExamBegin
+          header={<NavHead examInfo={examInfo} allowExit={temporaryAllowExit} />}
+        >
+          <QuestionComponent allowExit={temporaryAllowExit} />
         </ExamBegin>
       </AnswerSyncProvider>
       <ToastContainer />

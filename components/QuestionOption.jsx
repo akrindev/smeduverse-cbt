@@ -15,6 +15,10 @@ export default function QuestionOption({
   }, [chosen?.answer_chosen_id]);
 
   const handleChange = (value) => {
+    if (isSaving) {
+      return;
+    }
+
     setSelected(value);
     onChosen(value);
   };
