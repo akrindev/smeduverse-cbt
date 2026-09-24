@@ -108,6 +108,8 @@ const Timer = ({ allowExit } = {}) => {
 
     if (remainingTimeMs <= 2000) {
       isAutoSubmitting.current = true;
+      // Auto-submit uses the explicit retry entry point (not the background
+      // flush) so terminal/exhausted entries get one fresh cycle.
       submitExam({
         sheetId,
         flushAnswers: retryAnswers,

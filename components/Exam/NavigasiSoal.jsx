@@ -247,6 +247,8 @@ function ButtonResult({
     setIsLoading(true);
 
     try {
+      // Submit intentionally uses the explicit retry entry point (not the
+      // background flush) so terminal/exhausted entries get one fresh cycle.
       const result = await submitExam({
         sheetId,
         flushAnswers: retryAnswers,

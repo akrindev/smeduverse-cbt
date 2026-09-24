@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/router";
 import { ExamSecurityContext } from "../../lib/hooks/useExamSecurity";
 import {
+  createExamGuardAbortError,
+  createWarningGate,
+  guardExamNavigation,
   installBeforeUnload,
   isExamRouteAllowed,
+  isExamGuardAbort,
 } from "../../lib/exam/examSecurity";
-
-const WARNING_DEDUPE_MS = 1000;
 
 export function ExamSecurityProvider({
   enabled,
@@ -20,7 +22,13 @@ export function ExamSecurityProvider({
   const enabledRef = useRef(enabled);
   const warningRef = useRef(onWarning ?? onWarn);
   const sheetIdRef = useRef(sheetId);
-  const lastWarningAtRef = useRef(0);
+  const warningGateRef = useRef(null);
+  useEffect(() => {
+    warningGateRef.current ??= createWarningGate({
+      isEnabled: () => enabledRef.current,
+      getCallback: () => warningRef.current,
+    });
+  }, []);
 
   useEffect(() => {
     enabledRef.current = enabled;
@@ -34,7 +42,7 @@ export function ExamSecurityProvider({
   useEffect(() => {
     if (sheetIdRef.current !== sheetId) {
       exitAllowedRef.current = false;
-      lastWarningAtRef.current = 0;
+      warningGateRef.current?.reset();
       sheetIdRef.current = sheetId;
     }
   }, [sheetId]);
@@ -51,19 +59,7 @@ export function ExamSecurityProvider({
   }, []);
 
   const recordWarning = useCallback(() => {
-    if (!enabledRef.current) {
-      return undefined;
-    }
-    const callback = warningRef.current;
-    if (typeof callback !== "function") {
-      return undefined;
-    }
-    const now = Date.now();
-    if (now - lastWarningAtRef.current < WARNING_DEDUPE_MS) {
-      return undefined;
-    }
-    lastWarningAtRef.current = now;
-    return callback();
+    return warningGateRef.current?.();
   }, []);
 
   // Native reload/close confirmation, installed only while guarded.
@@ -92,23 +88,37 @@ export function ExamSecurityProvider({
       isExamRouteAllowed(url, { exitAllowed: exitAllowedRef.current });
 
     let handleRouteChangeStart;
+    let handleRouteChangeError;
     if (router?.events) {
+      // Blocked programmatic navigation records one deduplicated warning,
+      // redirects back to /exam, and aborts via the coded guard token (never
+      // a bare Error); the routeChangeError handler below swallows it.
       handleRouteChangeStart = (url) => {
-        if (isAllowed(url)) {
+        if (
+          !guardExamNavigation(url, { isAllowed, onBlocked: recordWarning })
+        ) {
           return;
         }
         void router.replace("/exam");
-        throw new Error("routeChange aborted: exam guard is active");
+        throw createExamGuardAbortError();
+      };
+      handleRouteChangeError = (error) => {
+        if (isExamGuardAbort(error) || error?.cancelled) {
+          return;
+        }
+        console.error("[exam] Route change failed", error);
       };
       router.events.on("routeChangeStart", handleRouteChangeStart);
+      router.events.on("routeChangeError", handleRouteChangeError);
     }
 
     if (router && typeof router.beforePopState === "function") {
+      // Blocked browser back/forward records one deduplicated warning.
       router.beforePopState(({ as } = {}) => {
-        if (isAllowed(as)) {
-          return true;
-        }
-        return false;
+        return !guardExamNavigation(as, {
+          isAllowed,
+          onBlocked: recordWarning,
+        });
       });
     }
 
@@ -148,10 +158,15 @@ export function ExamSecurityProvider({
       if (url.origin !== window.location.origin) {
         return;
       }
-      if (isAllowed(`${url.pathname}${url.search}${url.hash}`)) {
-        return;
+      // Blocked same-origin exit links record one deduplicated warning.
+      if (
+        guardExamNavigation(`${url.pathname}${url.search}${url.hash}`, {
+          isAllowed,
+          onBlocked: recordWarning,
+        })
+      ) {
+        event.preventDefault();
       }
-      event.preventDefault();
     };
     document.addEventListener("click", handleAnchorClick, true);
 
@@ -174,6 +189,9 @@ export function ExamSecurityProvider({
     return () => {
       if (handleRouteChangeStart && router?.events) {
         router.events.off("routeChangeStart", handleRouteChangeStart);
+      }
+      if (handleRouteChangeError && router?.events) {
+        router.events.off("routeChangeError", handleRouteChangeError);
       }
       if (router && typeof router.beforePopState === "function") {
         router.beforePopState(() => true);
