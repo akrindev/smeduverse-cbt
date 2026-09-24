@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { ChevronDown } from "lucide-react";
 import { loaderImg } from "../lib/loaderImg";
 
 import { Transition } from "@headlessui/react";
@@ -62,13 +63,12 @@ function UserMenu({ user }) {
           <span className="truncate ml-2 text-sm font-medium group-hover:text-gray-800">
             {user?.student?.fullname}
           </span>
-          {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-          <svg
-            className="w-3 h-3 flex-shrink-0 ml-1 fill-current text-gray-400"
-            viewBox="0 0 12 12"
-          >
-            <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
-          </svg>
+          <ChevronDown
+            size={12}
+            strokeWidth={2}
+            className="flex-shrink-0 ml-1 text-gray-400"
+            aria-hidden="true"
+          />
         </div>
       </button>
 

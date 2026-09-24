@@ -72,7 +72,10 @@ export default function UjianSusulan() {
                                 required/>
                         </div>
                         <div className="mt-3">
-                            <button className="bg-blue-600 px-7 py-2 rounded text-white text-xs hover:bg-opacity-70">
+                            <button
+                                className="bg-blue-600 px-7 py-2 rounded text-white text-xs hover:bg-opacity-70"
+                                aria-label={isLoading === "loading" ? "Memeriksa token ujian" : undefined}
+                            >
                                 {isLoading === 'loading' ? <ThreeDots /> : 'submit'}
                             </button>
                         </div>

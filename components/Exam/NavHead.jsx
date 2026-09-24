@@ -2,29 +2,41 @@ import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useExamInfo } from "../../store/useExamInfo";
 import ExamUserInfo from "./ExamUserInfo";
-import { getResult } from "../../lib/services/getResult";
+import { submitExam } from "../../lib/services/submitExam";
+import { useAnswerSync } from "../../lib/hooks/useAnswerSync";
+import { useExamSecurity } from "../../lib/hooks/useExamSecurity";
 import { toast } from "react-toastify";
 import { useExamTime } from "../../store/useExamTime";
 import { getTrustedNowMs, parseServerTimeMs } from "../../lib/serverClock";
 
-export default function NavHead() {
+export default function NavHead({ allowExit } = {}) {
   return (
     <ExamUserInfo>
-      <Timer />
+      <Timer allowExit={allowExit} />
     </ExamUserInfo>
   );
 }
 
-const Timer = () => {
+const Timer = ({ allowExit } = {}) => {
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
+  const {
+    retryAnswers,
+    isFinalizing,
+    beginFinalization,
+    endFinalization,
+    clearAnswers,
+  } = useAnswerSync();
 
   const [remainingTimeMs, setRemainingTimeMs] = useState(null);
   const [trustedNowMs, setTrustedNowMs] = useState(null);
   const [fallbackNowMs, setFallbackNowMs] = useState(() => Date.now());
   const hasAutoSubmitted = useRef(false);
+  const isAutoSubmitting = useRef(false);
 
   const examInfo = useExamInfo((state) => state.examInfo);
   const setSubmitable = useExamTime((state) => state.setSubmitable);
+  const { allowExit: securityAllowExit } = useExamSecurity();
+  const effectiveAllowExit = securityAllowExit ?? allowExit;
 
   const { end_time, server_now_ms, sync_perf_now } = examInfo;
 
@@ -84,6 +96,8 @@ const Timer = () => {
     const sheetId = savedAnswers?.[0]?.exam_answer_sheet_id;
     if (
       hasAutoSubmitted.current ||
+      isAutoSubmitting.current ||
+      isFinalizing ||
       !sheetId ||
       !Number.isFinite(endTimeMs) ||
       !Number.isFinite(effectiveNowMs) ||
@@ -93,12 +107,40 @@ const Timer = () => {
     }
 
     if (remainingTimeMs <= 2000) {
-      hasAutoSubmitted.current = true;
-      getResult(sheetId).then(() => {
-        toast.success("ujian di selesaikan");
-      });
+      isAutoSubmitting.current = true;
+      // Auto-submit uses the explicit retry entry point (not the background
+      // flush) so terminal/exhausted entries get one fresh cycle.
+      submitExam({
+        sheetId,
+        flushAnswers: retryAnswers,
+        allowExit: effectiveAllowExit,
+        onStart: beginFinalization,
+        onFinish: endFinalization,
+        clearAnswers,
+      })
+        .then((result) => {
+          if (result.submitted) {
+            hasAutoSubmitted.current = true;
+            toast.success("ujian di selesaikan");
+          }
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          isAutoSubmitting.current = false;
+        });
     }
-  }, [remainingTimeMs, savedAnswers, effectiveNowMs, endTimeMs]);
+  }, [
+    effectiveAllowExit,
+    beginFinalization,
+    clearAnswers,
+    effectiveNowMs,
+    endFinalization,
+    endTimeMs,
+    isFinalizing,
+    remainingTimeMs,
+    retryAnswers,
+    savedAnswers,
+  ]);
 
   const [hour, min, sec] = useMemo(() => {
     const safeRemainingMs = Number.isFinite(remainingTimeMs) ? remainingTimeMs : 0;
@@ -108,8 +150,6 @@ const Timer = () => {
     const nextSec = Math.floor((displayMs / 1000) % 60);
     return [nextHour, nextMin, nextSec];
   }, [remainingTimeMs]);
-
-
 
   return (
     <div

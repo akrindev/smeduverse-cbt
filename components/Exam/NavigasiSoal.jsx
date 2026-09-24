@@ -1,18 +1,20 @@
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import NavButirSoal from "./NavButirSoal";
 import find from "lodash/find";
 import { useExamQuestions } from "../../store/useExamQuestions";
 import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useExamInfo } from "../../store/useExamInfo";
 import Modal from "../Dialog";
-
-import { getResult } from "../../lib/services/getResult";
+import { submitExam } from "../../lib/services/submitExam";
+import { useAnswerSync } from "../../lib/hooks/useAnswerSync";
+import { useExamSecurity } from "../../lib/hooks/useExamSecurity";
 import { loaderImg } from "../../lib/loaderImg";
 import filter from "lodash/filter";
 import { useExamTime } from "../../store/useExamTime";
 
-const NavigasiSoal = () => {
+const NavigasiSoal = ({ allowExit } = {}) => {
   const questions = useExamQuestions((state) => state.questions);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
   const examInfo = useExamInfo((state) => state.examInfo);
@@ -22,11 +24,53 @@ const NavigasiSoal = () => {
   const [initiating, setInitiating] = useState(true);
 
   const [canSubmit, setCanSubmit] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const {
+    pendingCount,
+    entries,
+    isFinalizing,
+    retryAnswers,
+    clearAnswers,
+    beginFinalization,
+    endFinalization,
+  } = useAnswerSync();
 
   const submitable = useExamTime((state) => state.submitable);
+  const { allowExit: securityAllowExit } = useExamSecurity();
+  const effectiveAllowExit = securityAllowExit ?? allowExit;
+  const hasFailedEntries = entries.some((entry) => entry.status === "failed");
+  const hasRetryableEntries = entries.some(
+    (entry) =>
+      entry.status === "failed" ||
+      (entry.status === "queued" && entry.attempts >= 3)
+  );
+
+  const handleSyncRequired = useCallback(() => {
+    toast.info(
+      "Jawaban masih menunggu sinkronisasi. Silakan coba lagi sebentar."
+    );
+    void retryAnswers().catch((error) => {
+      console.error("[exam] Answer recovery failed", error);
+    });
+  }, [retryAnswers]);
+
+  const handleRetry = useCallback(async () => {
+    if (isRetrying || isFinalizing) {
+      return;
+    }
+
+    setIsRetrying(true);
+    try {
+      await retryAnswers();
+    } catch (error) {
+      console.error("[exam] Manual answer retry failed", error);
+    } finally {
+      setIsRetrying(false);
+    }
+  }, [isFinalizing, isRetrying, retryAnswers]);
 
   const stopExam = () => {
-    if (canSubmit && !submitable) {
+    if (isFinalizing || (canSubmit && !submitable)) {
       return;
     }
 
@@ -88,8 +132,9 @@ const NavigasiSoal = () => {
               {canSubmit ? (
                 // biome-ignore lint/a11y/useButtonType: <explanation>
                 <button
-                  className="bg-gray-200 text-sm px-4 py-1 rounded-lg border border-gray-500 font-medium"
+                  className="bg-gray-200 text-sm px-4 py-1 rounded-lg border border-gray-500 font-medium disabled:opacity-50"
                   onClick={stopExam}
+                  disabled={isFinalizing}
                 >
                   Hentikan Ujian
                 </button>
@@ -99,6 +144,28 @@ const NavigasiSoal = () => {
                 </span>
               )}
             </div>
+            {pendingCount > 0 && (
+              <div className="mt-2 text-right">
+                <p
+                  className={`text-xs ${
+                    hasFailedEntries ? "text-red-700" : "text-amber-700"
+                  }`}
+                >
+                  {hasFailedEntries
+                    ? "Beberapa jawaban gagal disinkronkan."
+                    : "Jawaban masih menunggu sinkronisasi."}
+                </p>
+                {hasRetryableEntries && (
+                  <button
+                    className="mt-1 text-xs text-blue-700 underline disabled:opacity-50"
+                    onClick={handleRetry}
+                    disabled={isRetrying || isFinalizing}
+                  >
+                    {isRetrying ? "Mengulang sinkronisasi..." : "Coba sinkronkan ulang"}
+                  </button>
+                )}
+              </div>
+            )}
             <div className="mt-3">
               <div className="flex flex-col items-start">
                 <div className="flex items-center space-x-3">
@@ -136,7 +203,17 @@ const NavigasiSoal = () => {
           description={<ChosenAnswer answers={savedAnswers} />}
           action={
             savedAnswers && (
-              <ButtonResult sheetId={savedAnswers[0]?.exam_answer_sheet_id} />
+              <ButtonResult
+                sheetId={savedAnswers[0]?.exam_answer_sheet_id}
+                pendingCount={pendingCount}
+                retryAnswers={retryAnswers}
+                onSyncRequired={handleSyncRequired}
+                allowExit={effectiveAllowExit}
+                isFinalizing={isFinalizing}
+                beginFinalization={beginFinalization}
+                endFinalization={endFinalization}
+                clearAnswers={clearAnswers}
+              />
             )
           }
         />
@@ -145,13 +222,49 @@ const NavigasiSoal = () => {
   );
 };
 
-function ButtonResult({ sheetId }) {
+function ButtonResult({
+  sheetId,
+  pendingCount,
+  retryAnswers,
+  onSyncRequired,
+  allowExit,
+  isFinalizing,
+  beginFinalization,
+  endFinalization,
+  clearAnswers,
+}) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = async () => {
+    if (isFinalizing) {
+      return;
+    }
+    if (pendingCount > 0) {
+      onSyncRequired?.();
+      return;
+    }
+
     setIsLoading(true);
 
-    await getResult(sheetId).finally(() => setIsLoading(false));
+    try {
+      // Submit intentionally uses the explicit retry entry point (not the
+      // background flush) so terminal/exhausted entries get one fresh cycle.
+      const result = await submitExam({
+        sheetId,
+        flushAnswers: retryAnswers,
+        allowExit,
+        onBlocked: onSyncRequired,
+        onStart: beginFinalization,
+        onFinish: endFinalization,
+        clearAnswers,
+      });
+
+      if (result.reason === "error") {
+        toast.error("Ujian tidak dapat dikumpulkan. Silakan coba lagi.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -161,7 +274,7 @@ function ButtonResult({ sheetId }) {
         className={
           "bg-green-500 text-white rounded-md px-4 py-1 disabled:opacity-60"
         }
-        disabled={isLoading}
+        disabled={isLoading || isFinalizing || pendingCount > 0}
         onClick={handleClick}
       >
         {isLoading ? "Mengumpulkan" : "Kumpulkan"}

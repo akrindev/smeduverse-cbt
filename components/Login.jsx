@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
 import Head from "next/head";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../lib/hooks/auth";
 import { ThreeDots } from "./Loading";
 
@@ -12,6 +13,7 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState([]);
   const [status, setStatus] = useState(null);
 
@@ -90,14 +92,40 @@ export default function Login() {
                       Password
                     </label>
                     <input
-                      type="password"
-                      className="px-3 py-3 placeholder-zinc-300 text-zinc-900 bg-zinc-100 rounded text-sm shadow focus:bg-blue-50 w-full"
+                      type={showPassword ? "text" : "password"}
+                      className="px-3 py-3 placeholder-zinc-300 text-zinc-900 bg-zinc-100 rounded text-sm shadow focus:bg-blue-50 w-full pr-11"
                       placeholder="Password"
                       autoComplete="current-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((visible) => !visible)}
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500"
+                      aria-label={
+                        showPassword
+                          ? "Sembunyikan password"
+                          : "Tampilkan password"
+                      }
+                      aria-pressed={showPassword}
+                      title={
+                        showPassword
+                          ? "Sembunyikan password"
+                          : "Tampilkan password"
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOff
+                          size={20}
+                          strokeWidth={1.5}
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <Eye size={20} strokeWidth={1.5} aria-hidden="true" />
+                      )}
+                    </button>
                   </div>
 
                   <div className="text-center mt-6">
@@ -110,6 +138,7 @@ export default function Login() {
                                         mr-1 mb-1 w-full ease-linear transition-all duration-150 
                                         disabled:opacity-75`}
                       type="submit"
+                      aria-label={status === "loading" ? "Memproses login" : undefined}
                       disabled={status === "loading"}
                     >
                       {status === "loading" ? <ThreeDots /> : "Masuk"}

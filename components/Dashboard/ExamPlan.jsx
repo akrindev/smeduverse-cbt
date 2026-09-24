@@ -1,3 +1,5 @@
+import { Clock3 } from "lucide-react";
+
 export default function ExamPlan({ plans, onSelectedPlan }) {
     return (
         <>
@@ -17,7 +19,12 @@ export default function ExamPlan({ plans, onSelectedPlan }) {
                         >
                             <div className="text-lg font-semibold">{plan.name}</div>
                             <div className="flex items-center text-sm">
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <Clock3
+                                    size={16}
+                                    strokeWidth={2}
+                                    className="mr-2"
+                                    aria-hidden="true"
+                                />
                                 <span>
                                     {plan.schedules_count} jadwal ujian
                                 </span>
