@@ -11,14 +11,14 @@ import { useSavedAnswers } from "../../store/useSavedAnswers";
 import { useExamInfo } from "../../store/useExamInfo";
 import QuestionComponent from "../../components/Exam/QuestionComponent";
 import { AnswerSyncProvider } from "../../lib/hooks/useAnswerSync";
+import { ExamSecurityProvider } from "../../components/Exam/ExamSecurityProvider";
 
 export default function ExamIndex() {
   const questions = useExamQuestions((state) => state.questions);
   const examInfo = useExamInfo((state) => state.examInfo);
   const setWarn = useExamInfo((state) => state.setWarn);
   const savedAnswers = useSavedAnswers((state) => state.savedAnswers);
-  // Task 5 replaces this explicit temporary seam with ExamSecurityProvider's allowExit.
-  const temporaryAllowExit = useCallback(() => {}, []);
+  const securityEnabled = Boolean(examInfo?.sheet_id && examInfo?.warnEnabled);
 
   useEffect(() => {
     if (questions.length <= 0 && savedAnswers.length <= 0) {
@@ -29,25 +29,29 @@ export default function ExamIndex() {
     }
   }, [questions, savedAnswers]);
 
-  const handleWarn = useCallback(
-    async (event) => {
-      await api
-        .patch("/api/exam/warn-exam", {
-          sheet_id: examInfo.sheet_id,
-        })
-        .then((res) => {
-          setWarn({
-            warn: res.data?.warn || 0,
-          });
-        })
-        .catch((err) => console.error(err));
+  const onWarning = useCallback(async () => {
+    try {
+      const res = await api.patch("/api/exam/warn-exam", {
+        sheet_id: examInfo.sheet_id,
+      });
+      setWarn({
+        warn: res.data?.warn || 0,
+      });
+    } catch (err) {
+      console.error(err);
+    }
 
-      toast.error("Kamu meninggalkan halaman ujian, peringatan ditambahkan");
+    toast.error("Kamu meninggalkan halaman ujian, peringatan ditambahkan");
+    try {
       const sound = new Audio("/assets/sounds/goes.ogg");
-      sound.play();
-    },
-    [examInfo, setWarn]
-  );
+      const played = sound.play();
+      if (played && typeof played.catch === "function") {
+        played.catch(() => {});
+      }
+    } catch {
+      // Ignore autoplay rejections while recording the warning.
+    }
+  }, [examInfo.sheet_id, setWarn]);
 
   const isProtectedSelection = useCallback(() => {
     if (typeof window === "undefined") {
@@ -77,19 +81,6 @@ export default function ExamIndex() {
         target.closest("[data-exam-protected='true']")
     );
   }, []);
-
-  // prevent leave window
-  useEffect(() => {
-    if (typeof global.window !== "undefined" && examInfo.warnEnabled) {
-      global.window.addEventListener("blur", handleWarn);
-    }
-
-    return () => {
-      if (typeof global.window !== "undefined" && examInfo.warnEnabled) {
-        global.window.removeEventListener("blur", handleWarn);
-      }
-    };
-  }, [handleWarn, examInfo]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -149,11 +140,15 @@ export default function ExamIndex() {
         <title>Mengerjakan Ujian</title>
       </Head>
       <AnswerSyncProvider>
-        <ExamBegin
-          header={<NavHead examInfo={examInfo} allowExit={temporaryAllowExit} />}
+        <ExamSecurityProvider
+          enabled={securityEnabled}
+          sheetId={examInfo?.sheet_id}
+          onWarning={onWarning}
         >
-          <QuestionComponent allowExit={temporaryAllowExit} />
-        </ExamBegin>
+          <ExamBegin header={<NavHead examInfo={examInfo} />}>
+            <QuestionComponent />
+          </ExamBegin>
+        </ExamSecurityProvider>
       </AnswerSyncProvider>
       <ToastContainer />
     </>

@@ -4,6 +4,7 @@ import { useExamInfo } from "../../store/useExamInfo";
 import ExamUserInfo from "./ExamUserInfo";
 import { submitExam } from "../../lib/services/submitExam";
 import { useAnswerSync } from "../../lib/hooks/useAnswerSync";
+import { useExamSecurity } from "../../lib/hooks/useExamSecurity";
 import { toast } from "react-toastify";
 import { useExamTime } from "../../store/useExamTime";
 import { getTrustedNowMs, parseServerTimeMs } from "../../lib/serverClock";
@@ -34,6 +35,8 @@ const Timer = ({ allowExit } = {}) => {
 
   const examInfo = useExamInfo((state) => state.examInfo);
   const setSubmitable = useExamTime((state) => state.setSubmitable);
+  const { allowExit: securityAllowExit } = useExamSecurity();
+  const effectiveAllowExit = securityAllowExit ?? allowExit;
 
   const { end_time, server_now_ms, sync_perf_now } = examInfo;
 
@@ -108,7 +111,7 @@ const Timer = ({ allowExit } = {}) => {
       submitExam({
         sheetId,
         flushAnswers: retryAnswers,
-        allowExit,
+        allowExit: effectiveAllowExit,
         onStart: beginFinalization,
         onFinish: endFinalization,
         clearAnswers,
@@ -125,7 +128,7 @@ const Timer = ({ allowExit } = {}) => {
         });
     }
   }, [
-    allowExit,
+    effectiveAllowExit,
     beginFinalization,
     clearAnswers,
     effectiveNowMs,

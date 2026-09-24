@@ -9,6 +9,7 @@ import { useExamInfo } from "../../store/useExamInfo";
 import Modal from "../Dialog";
 import { submitExam } from "../../lib/services/submitExam";
 import { useAnswerSync } from "../../lib/hooks/useAnswerSync";
+import { useExamSecurity } from "../../lib/hooks/useExamSecurity";
 import { loaderImg } from "../../lib/loaderImg";
 import filter from "lodash/filter";
 import { useExamTime } from "../../store/useExamTime";
@@ -35,6 +36,8 @@ const NavigasiSoal = ({ allowExit } = {}) => {
   } = useAnswerSync();
 
   const submitable = useExamTime((state) => state.submitable);
+  const { allowExit: securityAllowExit } = useExamSecurity();
+  const effectiveAllowExit = securityAllowExit ?? allowExit;
   const hasFailedEntries = entries.some((entry) => entry.status === "failed");
   const hasRetryableEntries = entries.some(
     (entry) =>
@@ -205,7 +208,7 @@ const NavigasiSoal = ({ allowExit } = {}) => {
                 pendingCount={pendingCount}
                 retryAnswers={retryAnswers}
                 onSyncRequired={handleSyncRequired}
-                allowExit={allowExit}
+                allowExit={effectiveAllowExit}
                 isFinalizing={isFinalizing}
                 beginFinalization={beginFinalization}
                 endFinalization={endFinalization}
