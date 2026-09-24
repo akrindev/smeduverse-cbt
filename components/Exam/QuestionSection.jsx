@@ -168,6 +168,7 @@ const QuestionSection = () => {
 
   const questionEntry = getQuestionEntry(entries, question.id);
   const syncStatus = questionEntry?.status;
+  const isAuthError = questionEntry?.authError === true;
   const isDeferred = Boolean(
     questionEntry?.readyAt && questionEntry.readyAt > syncClock
   );
@@ -179,23 +180,25 @@ const QuestionSection = () => {
     !isTerminalQueued &&
     (syncStatus === "saving" || syncStatus === "syncing" || syncStatus === "queued");
 
-  const syncLabel = isDeferred
-    ? "jawaban menunggu jeda sinkronisasi"
-    : isRetrying
-      ? "mengulang sinkronisasi..."
-      : syncStatus === "saving"
-        ? "menyimpan jawaban"
-        : syncStatus === "syncing"
-          ? "menyinkronkan jawaban"
-          : isTerminalQueued
-            ? "sinkronisasi tertunda — coba lagi"
-            : syncStatus === "queued"
-              ? "jawaban menunggu sinkronisasi"
-              : syncStatus === "failed"
-                ? "jawaban gagal disinkronkan"
-                : null;
+  const syncLabel = isAuthError
+    ? "sesi berakhir — login ulang, jawaban tetap tersimpan"
+    : isDeferred
+      ? "jawaban menunggu jeda sinkronisasi"
+      : isRetrying
+        ? "mengulang sinkronisasi..."
+        : syncStatus === "saving"
+          ? "menyimpan jawaban"
+          : syncStatus === "syncing"
+            ? "menyinkronkan jawaban"
+            : isTerminalQueued
+              ? "sinkronisasi tertunda — coba lagi"
+              : syncStatus === "queued"
+                ? "jawaban menunggu sinkronisasi"
+                : syncStatus === "failed"
+                  ? "jawaban gagal disinkronkan"
+                  : null;
   const syncError =
-    syncStatus === "failed" && questionEntry?.lastError
+    syncStatus === "failed" && !isAuthError && questionEntry?.lastError
       ? `: ${questionEntry.lastError}`
       : "";
   const syncTone =
